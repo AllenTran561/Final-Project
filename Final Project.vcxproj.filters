@@ -58,16 +58,16 @@
     <ClCompile Include="src\Octree.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\singleRadialEmitter\src\Particle.cpp">
+    <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\singleRadialEmitter\src\TransformObject.cpp">
+    <ClCompile Include="src\Particle.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\singleRadialEmitter\src\ParticleEmitter.cpp">
+    <ClCompile Include="src\ParticleEmitter.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\singleRadialEmitter\src\ParticleSystem.cpp">
+    <ClCompile Include="src\TransformObject.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -308,16 +308,16 @@
     <ClInclude Include="src\Octree.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\singleRadialEmitter\src\Particle.h">
+    <ClInclude Include="src\ParticleSystem.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\singleRadialEmitter\src\TransformObject.h">
+    <ClInclude Include="src\Particle.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\singleRadialEmitter\src\ParticleEmitter.h">
+    <ClInclude Include="src\ParticleEmitter.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\singleRadialEmitter\src\ParticleSystem.h">
+    <ClInclude Include="src\TransformObject.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
