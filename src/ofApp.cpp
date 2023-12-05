@@ -37,8 +37,8 @@ void ofApp::setup() {
 	//
 	initLightingAndMaterials();
 
-	//mars.loadModel("geo/mars-low-5x-v2.obj");
-	mars.loadModel("geo/moon-houdini.obj");
+	mars.loadModel("geo/mars-low-5x-v2.obj");
+	//mars.loadModel("geo/moon-houdini.obj");
 
 	mars.setScaleNormalization(false);
 
@@ -84,6 +84,7 @@ void ofApp::update() {
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
+	
 	if (keymap[OF_KEY_UP]) {
 		p.addForces(10 * glm::vec3(0, 1, 0));
 	}
@@ -97,7 +98,7 @@ void ofApp::update() {
 		p.addForces(10 * glm::vec3(-1, 0, 0));
 	}
 	//Connects lander to landerEmitter particle
-	if (bLanderLoaded) {
+	if (bLanderLoaded && !bInDrag) {
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		landerEmitter.update();
 		p.integrate();
@@ -455,6 +456,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 		ofVec3f p;
 		raySelectWithOctree(p);
 	}
+	landerEmitter.sys->particles[0].position = lander.getPosition();
 }
 
 //--------------------------------------------------------------
