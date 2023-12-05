@@ -29,7 +29,9 @@ void ParticleSystem::reset() {
 
 void ParticleSystem::update() {
 	// check if empty and just return
-	if (particles.size() == 0) return;
+	if (particles.size() == 0)
+		cout << "small" << endl;
+		return;
 
 	vector<Particle>::iterator p = particles.begin();
 	vector<Particle>::iterator tmp;

@@ -17,6 +17,7 @@ public:
 	float   lifespan;
 	float   radius;
 	float   birthtime;
+	void	addForces(glm::vec3);
 	void    integrate();
 	void    draw();
 	float   age();        // sec

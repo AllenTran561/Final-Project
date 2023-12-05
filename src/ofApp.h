@@ -67,7 +67,6 @@ class ofApp : public ofBaseApp{
 		bool bTimer = false;
 		bool collision = false;
 
-		
 		bool bLanderLoaded;
 		bool bTerrainSelected;
 	
@@ -79,5 +78,6 @@ class ofApp : public ofBaseApp{
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;
+		map<int, bool> keymap;
 		const float selectionRange = 4.0;
 };

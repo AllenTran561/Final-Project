@@ -70,16 +70,43 @@ void ofApp::setup() {
 		{9, ofColor::brown},
 		{10, ofColor::white}
 	};
+	//Sets up Lander Emitter
+	landerEmitter.setEmitterType(SingleEmitter);
+	landerEmitter.setGroupSize(1);
+	landerEmitter.start();
+	landerEmitter.spawn(ofGetElapsedTimeMillis());
 }
  
 //--------------------------------------------------------------
 // incrementally update scene (animation)
 //
 void ofApp::update() {
-
+	//References to lander particle
+	Particle& p = landerEmitter.sys->particles[0];
+	//Checks keys
+	if (keymap[OF_KEY_UP]) {
+		p.addForces(10 * glm::vec3(0, 1, 0));
+	}
+	if (keymap[OF_KEY_DOWN]) {
+		p.addForces(10 * glm::vec3(0, -1, 0));
+	}
+	if (keymap[OF_KEY_RIGHT]) {
+		p.addForces(10 * glm::vec3(1, 0, 0));
+	}
+	if (keymap[OF_KEY_LEFT]) {
+		p.addForces(10 * glm::vec3(-1, 0, 0));
+	}
+	//Connects lander to landerEmitter particle
+	if (bLanderLoaded) {
+		lander.setPosition(p.position.x, p.position.y, p.position.z);
+		landerEmitter.update();
+		p.integrate();
+	}
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+	landerEmitter.sys->draw();
 
 	ofBackground(ofColor::black);
 	glDepthMask(false);
@@ -181,7 +208,6 @@ void ofApp::draw() {
 	cam.end();
 }
 
-
 // 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
 //
@@ -207,7 +233,6 @@ void ofApp::drawAxis(ofVec3f location) {
 
 	ofPopMatrix();
 }
-
 
 void ofApp::keyPressed(int key) {
 
@@ -285,6 +310,7 @@ void ofApp::keyPressed(int key) {
 	default:
 		break;
 	}
+	keymap[key] = true;
 }
 
 void ofApp::toggleWireframeMode() {
@@ -318,8 +344,8 @@ void ofApp::keyReleased(int key) {
 		break;
 	default:
 		break;
-
 	}
+	keymap[key] = false;
 }
 
 
@@ -531,7 +557,6 @@ void ofApp::dragEvent2(ofDragInfo dragInfo) {
 		for (int i = 0; i < lander.getMeshCount(); i++) {
 			bboxList.push_back(Octree::meshBounds(lander.getMesh(i)));
 		}
-
 		//cout << "Mesh Count: " << lander.getMeshCount() << endl;
 	}
 	else cout << "Error: Can't load model" << dragInfo.files[0] << endl;
@@ -598,6 +623,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 			// set up bounding box for lander while we are at it
 			//
 			landerBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+			Particle &p = landerEmitter.sys->particles[0];
+			p.position.set(lander.getPosition());
 		}
 	}
 }

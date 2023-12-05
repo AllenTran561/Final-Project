@@ -1,6 +1,3 @@
-
-//  Kevin M. Smith - CS 134 SJSU
-
 #include "ParticleEmitter.h"
 
 ParticleEmitter::ParticleEmitter() {
@@ -38,11 +35,9 @@ void ParticleEmitter::init() {
 	radius = 1;
 	particleRadius = .1;
 	visible = true;
-	type = DirectionalEmitter;
+	type = SingleEmitter;
 	groupSize = 1;
 }
-
-
 
 void ParticleEmitter::draw() {
 	if (visible) {
@@ -57,9 +52,11 @@ void ParticleEmitter::draw() {
 		default:
 			break;
 		}
+
 	}
 	sys->draw();  
 }
+
 void ParticleEmitter::start() {
 	started = true;
 	lastSpawned = ofGetElapsedTimeMillis();
@@ -85,7 +82,9 @@ void ParticleEmitter::update() {
 		fired = true;
 		stop();
 	}
+	else if (SingleEmitter) {
 
+	}
 	else if (((time - lastSpawned) > (1000.0 / rate)) && started) {
 
 		// spawn a new particle(s)
@@ -123,6 +122,10 @@ void ParticleEmitter::spawn(float time) {
 		particle.velocity = velocity;
 		particle.position.set(position);
 		break;
+	//Lander Emitter of 1 particle
+	case SingleEmitter:
+		particle.velocity = glm::vec3(0, 0, 0);
+		particle.position.set(glm::vec3(0,0,0));
 	}
 
 	// other particle attributes
@@ -134,4 +137,5 @@ void ParticleEmitter::spawn(float time) {
 	// add to system
 	//
 	sys->add(particle);
+	cout << "add" << endl;
 }

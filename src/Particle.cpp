@@ -52,6 +52,10 @@ void Particle::integrate() {
 	forces.set(0, 0, 0);
 }
 
+void Particle::addForces(glm::vec3 f) {
+	forces = f;
+}
+
 //  return age in seconds
 //
 float Particle::age() {
