@@ -70,8 +70,6 @@ void ofApp::setup() {
 		{9, ofColor::brown},
 		{10, ofColor::white}
 	};
-	test.position = glm::vec3(0, 0, 0);
-	test.color = ofColor::red;
 }
  
 //--------------------------------------------------------------
@@ -84,7 +82,6 @@ void ofApp::update() {
 void ofApp::draw() {
 
 	ofBackground(ofColor::black);
-	test.draw();
 	glDepthMask(false);
 	if (!bHide) gui.draw();
 	glDepthMask(true);

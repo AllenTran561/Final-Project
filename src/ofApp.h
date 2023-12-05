@@ -74,7 +74,8 @@ class ofApp : public ofBaseApp{
 		ofVec3f selectedPoint;
 		ofVec3f intersectPoint;
 
-		Particle test;
+		ParticleEmitter exhaustEmitter;
+		ParticleEmitter landerEmitter;
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;

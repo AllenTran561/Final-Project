@@ -324,14 +324,4 @@
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\octree-readme.txt">
-      <Filter>src</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Octree.readme">
-      <Filter>src</Filter>
-    </None>
-  </ItemGroup>
 </Project>
