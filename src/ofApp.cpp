@@ -70,7 +70,12 @@ void ofApp::setup() {
 		{9, ofColor::brown},
 		{10, ofColor::white}
 	};
+
+	//Sets up Gravity Force
+	gravityForce = new GravityForce(ofVec3f(0, -.5, 0));
+
 	//Sets up Lander Emitter
+	landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
@@ -86,6 +91,7 @@ void ofApp::update() {
 	//Checks keys
 	
 	if (keymap[OF_KEY_UP]) {
+		
 		p.addForces(10 * glm::vec3(0, 1, 0));
 	}
 	if (keymap[OF_KEY_DOWN]) {
@@ -101,7 +107,6 @@ void ofApp::update() {
 	if (bLanderLoaded && !bInDrag) {
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		landerEmitter.update();
-		p.integrate();
 	}
 }
 //--------------------------------------------------------------
@@ -435,14 +440,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 		landerPos += delta;
 		lander.setPosition(landerPos.x, landerPos.y, landerPos.z);
 		mouseLastPos = mousePos;
-
-		ofVec3f min = lander.getSceneMin() + lander.getPosition();
-		ofVec3f max = lander.getSceneMax() + lander.getPosition();
-
-		Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
-
-		colBoxList.clear();
-		collision = octree.intersect(bounds, octree.root, colBoxList);
+		checkCollision();
 		/*
 		if (bounds.overlap(testBox)) {
 			cout << "overlap" << endl;
@@ -656,4 +654,14 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 		return intersectPoint;
 	}
 	else return glm::vec3(0, 0, 0);
+}
+
+bool ofApp::checkCollision() {
+	ofVec3f min = lander.getSceneMin() + lander.getPosition();
+	ofVec3f max = lander.getSceneMax() + lander.getPosition();
+
+	Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+
+	colBoxList.clear();
+	collision = octree.intersect(bounds, octree.root, colBoxList);
 }

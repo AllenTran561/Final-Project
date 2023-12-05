@@ -94,7 +94,6 @@ void ParticleEmitter::update() {
 	
 		lastSpawned = time;
 	}
-
 	sys->update();
 }
 
@@ -114,6 +113,7 @@ void ParticleEmitter::spawn(float time) {
 		float speed = velocity.length();
 		particle.velocity = dir.getNormalized() * speed;
 		particle.position.set(position);
+		particle.lifespan = lifespan;
 	}
 	break;
 	case SphereEmitter:
@@ -121,16 +121,20 @@ void ParticleEmitter::spawn(float time) {
 	case DirectionalEmitter:
 		particle.velocity = velocity;
 		particle.position.set(position);
+		particle.lifespan = lifespan;
+
 		break;
 	//Lander Emitter of 1 particle
 	case SingleEmitter:
 		particle.velocity = glm::vec3(0, 0, 0);
 		particle.position.set(glm::vec3(0,0,0));
+		//Makes particle last forever
+		particle.lifespan = -1;
+
 	}
 
 	// other particle attributes
 	//
-	particle.lifespan = lifespan;
 	particle.birthtime = time;
 	particle.radius = particleRadius;
 

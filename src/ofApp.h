@@ -36,6 +36,7 @@ class ofApp : public ofBaseApp{
 		void setCameraTarget();
 		bool mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point);
 		bool raySelectWithOctree(ofVec3f &pointRet);
+		void checkCollision();
 		glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
 
 		ofEasyCam cam;
@@ -75,6 +76,8 @@ class ofApp : public ofBaseApp{
 
 		ParticleEmitter exhaustEmitter;
 		ParticleEmitter landerEmitter;
+
+		GravityForce* gravityForce;
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;

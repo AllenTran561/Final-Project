@@ -29,9 +29,10 @@ void ParticleSystem::reset() {
 
 void ParticleSystem::update() {
 	// check if empty and just return
-	if (particles.size() == 0)
-		cout << "small" << endl;
+	if (particles.size() == 0) {
+		//cout << "small" << endl;
 		return;
+	}
 
 	vector<Particle>::iterator p = particles.begin();
 	vector<Particle>::iterator tmp;
@@ -41,9 +42,11 @@ void ParticleSystem::update() {
 	// traversing at the same time, we need to use an iterator.
 	//
 	while (p != particles.end()) {
+		cout << "not true" << endl;
 		if (p->lifespan != -1 && p->age() > p->lifespan) {
 			tmp = particles.erase(p);
 			p = tmp;
+			cout << "erase" << endl;
 		}
 		else p++;
 	}
