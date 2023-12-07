@@ -37,10 +37,11 @@ class ofApp : public ofBaseApp{
 		bool mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point);
 		bool raySelectWithOctree(ofVec3f &pointRet);
 		void checkCollision();
+		bool doPointSelection();
 		glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
 
 		ofEasyCam cam;
-		ofxAssimpModelLoader mars, lander;
+		ofxAssimpModelLoader mars, lander, spaceship;
 		ofLight light;
 		Box boundingBox, landerBounds;
 		Box testBox;
@@ -50,7 +51,6 @@ class ofApp : public ofBaseApp{
 		TreeNode selectedNode;
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
-
 
 		ofxIntSlider numLevels;
 		ofxPanel gui;
@@ -77,7 +77,9 @@ class ofApp : public ofBaseApp{
 		ParticleEmitter exhaustEmitter;
 		ParticleEmitter landerEmitter;
 
+		ImpulseRadialForce *impulseForce;
 		GravityForce* gravityForce;
+		GravityForce* neutralForce;
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;

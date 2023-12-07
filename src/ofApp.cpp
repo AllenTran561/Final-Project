@@ -71,9 +71,11 @@ void ofApp::setup() {
 		{10, ofColor::white}
 	};
 
-	//Sets up Gravity Force
+	//Sets up Gravity and Impulse Force
 	gravityForce = new GravityForce(ofVec3f(0, -.5, 0));
+	neutralForce = new GravityForce(ofVec3f(0, .001, 0));
 
+	impulseForce = new ImpulseRadialForce(0);
 	//Sets up Lander Emitter
 	landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
@@ -89,9 +91,7 @@ void ofApp::update() {
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
-	
 	if (keymap[OF_KEY_UP]) {
-		
 		p.addForces(10 * glm::vec3(0, 1, 0));
 	}
 	if (keymap[OF_KEY_DOWN]) {
@@ -104,9 +104,19 @@ void ofApp::update() {
 		p.addForces(10 * glm::vec3(-1, 0, 0));
 	}
 	//Connects lander to landerEmitter particle
+
 	if (bLanderLoaded && !bInDrag) {
+		impulseForce->setMagnitude(p.velocity.length());
+		cout << p.velocity << endl;
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		landerEmitter.update();
+		/* Lags the program
+		checkCollision();
+		*/
+		if (collision) {
+			landerEmitter.sys->addForce(neutralForce);
+			landerEmitter.sys->addForce(impulseForce);
+		}
 	}
 }
 //--------------------------------------------------------------
@@ -243,7 +253,8 @@ void ofApp::drawAxis(ofVec3f location) {
 void ofApp::keyPressed(int key) {
 
 	switch (key) {
-	case ' ':
+
+	case '2':
 		if (bLanderLoaded && collision) {
 			glm::vec3 pos = lander.getPosition();
 			lander.setPosition(pos.x, pos.y + 4, pos.z);
@@ -460,6 +471,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button) {
 	bInDrag = false;
+	//Resets Forces
+	landerEmitter.sys->reset();
 }
 
 
@@ -549,7 +562,7 @@ void ofApp::dragEvent2(ofDragInfo dragInfo) {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
 	if (lander.loadModel(dragInfo.files[0])) {
 		lander.setScaleNormalization(false);
-//		lander.setScale(.1, .1, .1);
+		lander.setScale(.01,.01,.01);
 	//	lander.setPosition(point.x, point.y, point.z);
 		lander.setPosition(1, 1, 0);
 
@@ -579,6 +592,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 	if (lander.loadModel(dragInfo.files[0])) {
 		bLanderLoaded = true;
 		lander.setScaleNormalization(false);
+		lander.setScale(.8, .8, .8);
 		lander.setPosition(0, 0, 0);
 		cout << "number of meshes: " << lander.getNumMeshes() << endl;
 		bboxList.clear();
@@ -655,6 +669,7 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	}
 	else return glm::vec3(0, 0, 0);
 }
+
 
 void ofApp::checkCollision() {
 	ofVec3f min = lander.getSceneMin() + lander.getPosition();

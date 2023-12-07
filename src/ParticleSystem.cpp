@@ -42,11 +42,9 @@ void ParticleSystem::update() {
 	// traversing at the same time, we need to use an iterator.
 	//
 	while (p != particles.end()) {
-		cout << "not true" << endl;
 		if (p->lifespan != -1 && p->age() > p->lifespan) {
 			tmp = particles.erase(p);
 			p = tmp;
-			cout << "erase" << endl;
 		}
 		else p++;
 	}
@@ -86,7 +84,6 @@ void ParticleSystem::draw() {
 		particles[i].draw();
 	}
 }
-
 
 // Gravity Force Field 
 //
@@ -131,7 +128,7 @@ void ImpulseRadialForce::updateForce(Particle * particle) {
 	// we basically create a random direction for each particle
 	// the force is only added once after it is triggered.
 	//
-	ofVec3f dir = ofVec3f(ofRandom(-1, 1), ofRandom(-height, height), ofRandom(-1, 1));
+	ofVec3f dir = ofVec3f(0, ofRandom(-height, height), 0);
 	particle->forces += dir.getNormalized() * magnitude;
 }
 void ImpulseRadialForce::setHeight(float h) {
