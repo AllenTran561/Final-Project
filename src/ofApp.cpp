@@ -91,29 +91,29 @@ void ofApp::update() {
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
-	//Space to move up
+	//Space to move foward
 	if (keymap[' ']) {
-		p.addForces(10 * glm::vec3(0, 1, 0));
-	}
-	//Control to move down
-	if (keymap[OF_KEY_CONTROL]) {
-		p.addForces(10 * glm::vec3(0, -1, 0));
-	}
-	//Arrow up to move foward
-	if (keymap[OF_KEY_UP]) {
 		p.addForces(10 * p.heading());
 	}
-	//Arrow down to move backwards
-	if (keymap[OF_KEY_DOWN]) {
+	//Control to move backwards
+	if (keymap[OF_KEY_CONTROL]) {
 		p.addForces(-10 * p.heading());
 	}
-	//Arrow down to rotate clockwise
-	if (keymap[OF_KEY_RIGHT]) {
-		p.addAngularForces(-100);
-	}
-	//Arrow up to rotate counter-clockwise
-	if (keymap[OF_KEY_LEFT]) {
+	//Arrow up to pitch nose up
+	if (keymap[OF_KEY_UP]) {
 		p.addAngularForces(100);
+	}
+	//Arrow down to pitch nose down
+	if (keymap[OF_KEY_DOWN]) {
+		p.addAngularForces(100);
+	}
+	//Arrow right to move right
+	if (keymap[OF_KEY_RIGHT]) {
+		p.addForces(10 * glm::vec3(1, 0, 0));
+	}
+	//Arrow left to move left 
+	if (keymap[OF_KEY_LEFT]) {
+		p.addForces(10 * glm::vec3(-1, 0, 0));
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
