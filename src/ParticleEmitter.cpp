@@ -141,5 +141,4 @@ void ParticleEmitter::spawn(float time) {
 	// add to system
 	//
 	sys->add(particle);
-	cout << "add" << endl;
 }

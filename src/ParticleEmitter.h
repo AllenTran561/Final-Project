@@ -27,10 +27,12 @@ public:
 	void setOneShot(bool s) { oneShot = s; }
 	void update();
 	void spawn(float time);
+	ofVec3f heading();
 	ParticleSystem *sys;
 	float rate;         // per sec
 	bool oneShot;
 	bool fired;
+	float rotation;
 	ofVec3f velocity;
 	float lifespan;     // sec
 	bool started;

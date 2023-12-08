@@ -9,6 +9,12 @@ Particle::Particle() {
 	acceleration.set(0, 0, 0);
 	position.set(0, 0, 0);
 	forces.set(0, 0, 0);
+
+	rotation = 0;
+	angularVelocity = 0;
+	angularAcceleration = 0;
+	angularForce = 0;
+
 	lifespan = 5;
 	birthtime = 0;
 	radius = .1;
@@ -47,13 +53,28 @@ void Particle::integrate() {
 	//
 	velocity *= damping;
 
+	rotation += (angularVelocity * dt);
+	float a = angularAcceleration;
+	a += (angularForce * 1.0 / mass);
+	angularVelocity += a * dt;
+	angularVelocity *= damping;
+
 	// clear forces on particle (they get re-added each step)
 	//
 	forces.set(0, 0, 0);
+	angularForce = 0;
 }
 
 void Particle::addForces(glm::vec3 f) {
 	forces = f;
+}
+void Particle::addAngularForces(float f) {
+	angularForce = f;
+}
+
+ofVec3f Particle::heading() {
+	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(1, 0, 0));
+	return glm::normalize(rot2 * glm::vec4(0, 0, -1, 1));
 }
 
 //  return age in seconds

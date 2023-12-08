@@ -77,7 +77,7 @@ void ofApp::setup() {
 
 	impulseForce = new ImpulseRadialForce(0);
 	//Sets up Lander Emitter
-	landerEmitter.sys->addForce(gravityForce);
+	//landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
@@ -91,24 +91,35 @@ void ofApp::update() {
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
-	if (keymap[OF_KEY_UP]) {
+	//Space to move up
+	if (keymap[' ']) {
 		p.addForces(10 * glm::vec3(0, 1, 0));
 	}
-	if (keymap[OF_KEY_DOWN]) {
+	//Control to move down
+	if (keymap[OF_KEY_CONTROL]) {
 		p.addForces(10 * glm::vec3(0, -1, 0));
 	}
-	if (keymap[OF_KEY_RIGHT]) {
-		p.addForces(10 * glm::vec3(1, 0, 0));
+	//Arrow up to move foward
+	if (keymap[OF_KEY_UP]) {
+		p.addForces(10 * p.heading());
 	}
+	//Arrow down to move backwards
+	if (keymap[OF_KEY_DOWN]) {
+		p.addForces(-10 * p.heading());
+	}
+	//Arrow down to rotate clockwise
+	if (keymap[OF_KEY_RIGHT]) {
+		p.addAngularForces(-100);
+	}
+	//Arrow up to rotate counter-clockwise
 	if (keymap[OF_KEY_LEFT]) {
-		p.addForces(10 * glm::vec3(-1, 0, 0));
+		p.addAngularForces(100);
 	}
 	//Connects lander to landerEmitter particle
-
 	if (bLanderLoaded && !bInDrag) {
 		impulseForce->setMagnitude(p.velocity.length());
-		cout << p.velocity << endl;
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
+		lander.setRotation(0, p.rotation, 1, 0, 0);
 		landerEmitter.update();
 		/* Lags the program
 		checkCollision();
@@ -563,6 +574,7 @@ void ofApp::dragEvent2(ofDragInfo dragInfo) {
 	if (lander.loadModel(dragInfo.files[0])) {
 		lander.setScaleNormalization(false);
 		lander.setScale(.01,.01,.01);
+		lander.setRotation(0, 90, 0, 1, 0);
 	//	lander.setPosition(point.x, point.y, point.z);
 		lander.setPosition(1, 1, 0);
 
@@ -593,6 +605,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 		bLanderLoaded = true;
 		lander.setScaleNormalization(false);
 		lander.setScale(.8, .8, .8);
+		lander.setRotation(1, -90, 1, 0, 0);
 		lander.setPosition(0, 0, 0);
 		cout << "number of meshes: " << lander.getNumMeshes() << endl;
 		bboxList.clear();
