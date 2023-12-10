@@ -74,7 +74,7 @@ void Particle::addAngularForces(float f) {
 
 ofVec3f Particle::heading() {
 	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(1, 0, 0));
-	return glm::normalize(rot2 * glm::vec4(0, 0, -1, 1));
+	return glm::normalize(rot2 * glm::vec4(0, 1, 0, 1));
 }
 
 //  return age in seconds

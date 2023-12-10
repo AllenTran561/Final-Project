@@ -125,7 +125,7 @@ void ofApp::setup() {
 	exhaustEmitter.sys->addForce(impulseForce);
 	exhaustEmitter.sys->addForce(cyclicForce);
 
-	//exhaustEmitter.particleColor = ofColor::red;
+	exhaustEmitter.particleColor = ofColor::red;
 	exhaustEmitter.setVelocity(ofVec3f(0, -8, 0));
 	exhaustEmitter.setOneShot(true);
 	//exhaustEmitter.setEmitterType(DirectionalEmitter);
@@ -229,7 +229,7 @@ void ofApp::update() {
 		exhaustEmitter.update();
 
 		if (collision) {
-			landerEmitter.sys->addForce(neutralForce);
+		//	landerEmitter.sys->addForce(neutralForce);
 		//	landerEmitter.sys->addForce(impulseForce);
 		}
 		else {
@@ -740,7 +740,7 @@ bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 	if (lander.loadModel(dragInfo.files[0])) {
 		bLanderLoaded = true;
-		lander.setRotation(1, -90, 1, 0, 0);
+		//lander.setRotation(1, -90, 1, 0, 0);
 		lander.setScaleNormalization(false);
 		lander.setScale(.8, .8, .8);
 		cout << "number of meshes: " << lander.getNumMeshes() << endl;
@@ -779,8 +779,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 			// Now position the lander's origin at that intersection point
 			//
 			glm::mat4 a = lander.getModelMatrix();
-			ofVec3f min = (lander.getSceneMin()) * a;
-			ofVec3f max = (lander.getSceneMax()) * a;
+			ofVec3f min = (lander.getSceneMin()) ;
+			ofVec3f max = (lander.getSceneMax()) ;
 			float offset = (max.y - min.y) / 2.0;
 			lander.setPosition(intersectPoint.x, intersectPoint.y - offset, intersectPoint.z);
 
@@ -823,6 +823,6 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 
 void ofApp::checkCollision() {
 	colBoxList.clear();
-	collision = octree.intersect(landerBounds, octree.root, colBoxList);
+	collision = octree.intersect(boundingBox, octree.root, colBoxList);
 	if (collision) cout << "collide" << endl;
 }
