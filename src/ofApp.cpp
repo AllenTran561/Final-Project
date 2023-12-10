@@ -182,7 +182,7 @@ void ofApp::update() {
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
-	//Space to move foward
+	//Space to move up
 	if (keymap[' ']) {
 		p.addForces(10 * glm::vec3(0, 1, 0));
 
@@ -192,23 +192,23 @@ void ofApp::update() {
 		glm::vec3 exhaustEmitterPosition = landerPosition + glm::vec3(0, yOffset, 0);
 		exhaustEmitter.setPosition(exhaustEmitterPosition);
 	}
-	//Control to move backwards
+	//Control to move down
 	if (keymap[OF_KEY_CONTROL]) {
 		p.addForces(-10 * glm::vec3(0, 1, 0));
 	}
-	//Arrow up to pitch nose up
+	//Arrow up to move foward
 	if (keymap[OF_KEY_UP]) {
 		p.addForces(10 * p.heading());
 	}
-	//Arrow down to pitch nose down
+	//Arrow down to backward
 	if (keymap[OF_KEY_DOWN]) {
 		p.addForces(-10 * p.heading());
 	}
-	//Arrow right to move right
+	//Arrow right to rotate clockwise
 	if (keymap[OF_KEY_RIGHT]) {
 		p.addAngularForces(100);
 	}
-	//Arrow left to move left 
+	//Arrow left to rotate counterclockwise
 	if (keymap[OF_KEY_LEFT]) {
 		p.addAngularForces(-100);
 	}
