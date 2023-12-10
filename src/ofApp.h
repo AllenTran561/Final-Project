@@ -116,5 +116,4 @@ class ofApp : public ofBaseApp{
 		// shaders
 		ofVbo vbo;
 		ofShader shader;
-
 };

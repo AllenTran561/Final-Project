@@ -215,7 +215,6 @@ bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn
 			for (int i = 0; i < node.children.size(); i++) {
 				TreeNode& child = node.children[i];
 				vector<Box> childResult;
-
 				if (intersect(box, child, boxListRtn)) {
 					boxListRtn = childResult;
 					return true;

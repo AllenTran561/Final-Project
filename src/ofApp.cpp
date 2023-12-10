@@ -114,7 +114,7 @@ void ofApp::setup() {
 
 
 	//Sets up Lander Emitter
-	//landerEmitter.sys->addForce(gravityForce);
+	landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
@@ -211,29 +211,27 @@ void ofApp::update() {
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
-		glm::mat4 a = lander.getModelMatrix();
-
-		//ofVec3f min =  0.01+ ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z());
+		//ofVec3f min =  0.01 + ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z());
 		//ofVec3f max =  0.01 + ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z());
 		
-		ofVec3f min = (lander.getSceneMin() + lander.getPosition());
-		ofVec3f max = (lander.getSceneMax() + lander.getPosition());
+		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
+		ofVec3f max = (ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z()) + lander.getPosition());
 		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 		checkCollision();
 
-
 		impulseForce->setMagnitude(p.velocity.length());
+		neutralForce->set(-p.velocity);
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 1, 0, 0);
 		landerEmitter.update();
 		exhaustEmitter.update();
 
-		// Lags the program
-		//checkCollision();
-		//
 		if (collision) {
 			landerEmitter.sys->addForce(neutralForce);
-			landerEmitter.sys->addForce(impulseForce);
+		//	landerEmitter.sys->addForce(impulseForce);
+		}
+		else {
+			cout << landerEmitter.sys->forces[0] << endl;
 		}
 		if (bDefaultCam) {
 			cam.setDistance(20);
@@ -288,7 +286,7 @@ void ofApp::draw() {
 					ofPushMatrix();
 					ofMultMatrix(lander.getModelMatrix());
 					//ofRotate(-90, 1, 0, 0);
-					Octree::drawBox(bboxList[1]);
+					Octree::drawBox(bboxList[i]);
 					ofPopMatrix();
 				}
 			}
@@ -812,5 +810,6 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 
 void ofApp::checkCollision() {
 	colBoxList.clear();
-	collision = octree.intersect(boundingBox, octree.root, colBoxList);
+	collision = octree.intersect(landerBounds, octree.root, colBoxList);
+	if (collision) cout << "collide" << endl;
 }
