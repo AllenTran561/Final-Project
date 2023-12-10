@@ -370,6 +370,9 @@ void ofApp::draw() {
 
 	cam.end();
 
+	ofSetColor(ofColor::white);
+	ofDrawBitmapString("Above Ground Level: ", ofGetWidth() - 280, 15);
+	ofDrawBitmapString(height, ofGetWidth() - 110, 15);
 
 }
 
