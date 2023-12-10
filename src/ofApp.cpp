@@ -35,6 +35,23 @@ void ofApp::setup() {
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
+	ofDisableArbTex();     // disable rectangular textures
+
+	// load textures
+	//
+
+	ofLoadImage(particleTex, "images/dot.png");
+
+	if (!ofLoadImage(particleTex, "images/dot.png")) {
+		cout << "Particle Texture File: images/dot.png not found" << endl;
+		ofExit();
+	}
+
+	#ifdef TARGET_OPENGLES
+		shader.load("shaders_gles/shader");
+	#else
+		shader.load("shaders/shader");
+	#endif
 
 	// setup rudimentary lighting 
 	//
@@ -49,6 +66,20 @@ void ofApp::setup() {
 	//
 	gui.setup();
 	gui.add(numLevels.setup("Number of Octree Levels", 1, 1, 10));
+	//	gui.add(velocity.setup("Initial Velocity", ofVec3f(0, 20, 0), ofVec3f(0, 0, 0), ofVec3f(100, 100, 100)));	
+	//	gui.add(lifespan.setup("Lifespan", 2.0, .1, 10.0));
+	//	gui.add(rate.setup("Rate", 1.0, .5, 60.0));
+	gui.add(numParticles.setup("Number of Particles", 15, 0, 50));
+	gui.add(lifespanRange.setup("Lifespan Range", ofVec2f(1, 6), ofVec2f(.1, .2), ofVec2f(3, 10)));
+	gui.add(mass.setup("Mass", 1, .1, 10));
+	gui.add(damping.setup("Damping", .99, .8, 1.0));
+	gui.add(gravity.setup("Gravity", 0, -20, 20));
+	gui.add(radius.setup("Radius", .14, 1, 10));
+	gui.add(turbMin.setup("Turbulence Min", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
+	gui.add(turbMax.setup("Turbulence Max", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
+	gui.add(radialForceVal.setup("Radial Force", 1000, 100, 5000));
+	gui.add(radialHight.setup("Radial Height", .2, .1, 1.0));
+	gui.add(cyclicForceVal.setup("Cyclic Force", 0, 10, 500));
 	bHide = false;
 
 	//  Create Octree for testing.
@@ -75,28 +106,88 @@ void ofApp::setup() {
 	};
 	
 	//Sets up Gravity and Impulse Force
-	gravityForce = new GravityForce(ofVec3f(0, -.5, 0));
+	gravityForce = new GravityForce(ofVec3f(0, -5, 0));
 	neutralForce = new GravityForce(ofVec3f(0, .001, 0));
-
 	impulseForce = new ImpulseRadialForce(0);
+	turbulenceForce = new TurbulenceForce(ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5));
+	cyclicForce = new CyclicForce(0);
+
+
 	//Sets up Lander Emitter
 	//landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
 	landerEmitter.spawn(ofGetElapsedTimeMillis());
+
+	exhaustEmitter.sys->addForce(turbulenceForce);
+	exhaustEmitter.sys->addForce(gravityForce);
+	exhaustEmitter.sys->addForce(impulseForce);
+	exhaustEmitter.sys->addForce(cyclicForce);
+
+	exhaustEmitter.particleColor = ofColor::red;
+	exhaustEmitter.setVelocity(ofVec3f(0, -5, 0));
+	exhaustEmitter.setOneShot(true);
+	exhaustEmitter.setEmitterType(DirectionalEmitter);
+	exhaustEmitter.setGroupSize(numParticles);
+	exhaustEmitter.setRandomLife(true);
+	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
+	exhaustEmitter.setPosition(lander.getPosition());
+
+}
+
+void ofApp::loadVbo()
+{
+	if (exhaustEmitter.sys->particles.size() < 1) return;
+
+	vector<ofVec3f> sizes;
+	vector<ofVec3f> points;
+	for (int i = 0; i < exhaustEmitter.sys->particles.size(); i++)
+	{
+		points.push_back(exhaustEmitter.sys->particles[i].position);
+		sizes.push_back(ofVec3f(20));
+	}
+	// upload the data to the vbo
+	//
+	int total = (int)points.size();
+	vbo.clear();
+	vbo.setVertexData(&points[0], total, GL_STATIC_DRAW);
+	vbo.setNormalData(&sizes[0], total, GL_STATIC_DRAW);
 }
  
 //--------------------------------------------------------------
 // incrementally update scene (animation)
 //
 void ofApp::update() {
+
+	// live update of emmitter parameters (with sliders)
+	//
+	exhaustEmitter.setParticleRadius(radius);
+	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
+	exhaustEmitter.setMass(mass);
+	exhaustEmitter.setDamping(damping);
+	//exhaustEmitter.setGroupSize(numParticles);
+
+	// live update of forces  (with sliders)
+	//
+	gravityForce->set(ofVec3f(0, -gravity, 0));
+	turbulenceForce->set(ofVec3f(turbMin->x, turbMin->y, turbMin->z), ofVec3f(turbMax->x, turbMax->y, turbMax->z));
+	impulseForce->set(radialForceVal);
+	impulseForce->setHeight(radialHight);
+	cyclicForce->set(cyclicForceVal);
+
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
 	//Checks keys
 	//Space to move foward
 	if (keymap[' ']) {
 		p.addForces(10 * p.heading());
+
+		//Offset exhaust particles position to appear inside spaceship exhaust 
+		glm::vec3 landerPosition = lander.getPosition();
+		float yOffset = -1;
+		glm::vec3 exhaustEmitterPosition = landerPosition + glm::vec3(0, yOffset, 0);
+		exhaustEmitter.setPosition(exhaustEmitterPosition);
 	}
 	//Control to move backwards
 	if (keymap[OF_KEY_CONTROL]) {
@@ -124,7 +215,8 @@ void ofApp::update() {
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 1, 0, 0);
 		landerEmitter.update();
-	
+		exhaustEmitter.update();
+
 		// Lags the program
 		//checkCollision();
 		//
@@ -149,6 +241,8 @@ void ofApp::update() {
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+	loadVbo();
 
 	landerEmitter.sys->draw();
 
@@ -247,9 +341,22 @@ void ofApp::draw() {
 		ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
-
 	ofPopMatrix();
+
+	shader.begin();
+
+	// draw exhaust particle emitter...
+	//
+	exhaustEmitter.draw();
+	particleTex.bind();
+	vbo.draw(GL_POINTS, 0, (int)exhaustEmitter.sys->particles.size());
+	particleTex.unbind();
+	
+	shader.end();
+
 	cam.end();
+
+
 }
 
 // 
@@ -369,6 +476,10 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_DEL:
 		break;
 	default:
+		break;
+	case ' ':
+		exhaustEmitter.sys->reset();
+		exhaustEmitter.start();
 		break;
 	}
 	keymap[key] = true;
