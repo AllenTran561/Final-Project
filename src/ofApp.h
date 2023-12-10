@@ -41,6 +41,8 @@ class ofApp : public ofBaseApp{
 		bool doPointSelection();
 		glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
 
+		void loadVbo();
+
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander, spaceship;
 		ofLight light;
@@ -54,6 +56,20 @@ class ofApp : public ofBaseApp{
 		bool bInDrag = false;
 
 		ofxIntSlider numLevels;
+		ofxFloatSlider gravity;
+		ofxFloatSlider damping;
+		ofxFloatSlider radius;
+		ofxVec3Slider velocity;
+		ofxIntSlider numParticles;
+		ofxFloatSlider lifespan;
+		ofxVec2Slider lifespanRange;
+		ofxVec3Slider turbMin;
+		ofxVec3Slider turbMax;
+		ofxFloatSlider mass;
+		ofxFloatSlider radialForceVal;
+		ofxFloatSlider radialHight;
+		ofxFloatSlider cyclicForceVal;
+		ofxFloatSlider rate;
 		ofxPanel gui;
 
 		bool bAltKeyDown;
@@ -81,6 +97,9 @@ class ofApp : public ofBaseApp{
 		ImpulseRadialForce *impulseForce;
 		GravityForce* gravityForce;
 		GravityForce* neutralForce;
+		TurbulenceForce* turbulenceForce;
+		CyclicForce* cyclicForce;
+
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;
@@ -90,5 +109,12 @@ class ofApp : public ofBaseApp{
 		bool bDefaultCam;
 		bool bThirdPersonCam;
 		bool bTopDownCam;
+
+		// textures
+		ofTexture  particleTex;
+
+		// shaders
+		ofVbo vbo;
+		ofShader shader;
 
 };

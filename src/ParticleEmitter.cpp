@@ -37,13 +37,23 @@ void ParticleEmitter::init() {
 	visible = true;
 	type = SingleEmitter;
 	groupSize = 1;
+	position = ofVec3f(0, 0, 0);
+	mass = 1;
+	damping = .99;
+	particleColor = ofColor::red;
+
 }
 
 void ParticleEmitter::draw() {
+
+	Particle particle;
+
 	if (visible) {
 		switch (type) {
+
 		case DirectionalEmitter:
-			ofDrawSphere(position, radius/10);  // just draw a small sphere for point emitters 
+			particle.velocity = velocity;
+			particle.position.set(position);  // just draw a small sphere for point emitters 
 			break;
 		case SphereEmitter:
 		case RadialEmitter:

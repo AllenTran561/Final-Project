@@ -137,3 +137,15 @@ void ImpulseRadialForce::setHeight(float h) {
 void ImpulseRadialForce::setMagnitude(float m) {
 	magnitude = m;
 }
+
+CyclicForce::CyclicForce(float magnitude) {
+	this->magnitude = magnitude;
+}
+
+void CyclicForce::updateForce(Particle* particle) {
+
+	ofVec3f position = particle->position;
+	ofVec3f norm = position.getNormalized();
+	ofVec3f dir = norm.cross(ofVec3f(0, 1, 0));
+	particle->forces += dir.getNormalized() * magnitude;
+}
