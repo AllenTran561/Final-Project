@@ -188,8 +188,8 @@ void ofApp::update() {
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
 		glm::vec3 landerPosition = lander.getPosition();
-		float yOffset = -1;
-		glm::vec3 exhaustEmitterPosition = landerPosition + glm::vec3(0, yOffset, 0);
+		glm::vec3 offset = glm::vec3(0, -1, .15);
+		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
 		exhaustEmitter.setPosition(exhaustEmitterPosition);
 	}
 	//Control to move down
@@ -214,9 +214,6 @@ void ofApp::update() {
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
-		//ofVec3f min =  0.01 + ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z());
-		//ofVec3f max =  0.01 + ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z());
-
 		impulseForce->setMagnitude(p.velocity.length());
 		neutralForce->set(-p.velocity);
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
@@ -454,7 +451,7 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'D':
 	case 'd':
-		
+		bAGL = !bAGL;
 		break;
 	case 'L':
 	case 'l':
