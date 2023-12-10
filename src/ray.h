@@ -35,6 +35,9 @@ class Ray {
     Vector3 direction;
     Vector3 inv_direction;
     int sign[3];
+    void setOrigin(Vector3 o) {
+        origin = o;
+    }
 };
 
 #endif // _RAY_H_

@@ -42,7 +42,8 @@ class ofApp : public ofBaseApp{
 		glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
 
 		void loadVbo();
-
+		Ray AGL;
+		float height;
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander, spaceship;
 		ofLight light;

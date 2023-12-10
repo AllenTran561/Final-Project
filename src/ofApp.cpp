@@ -135,6 +135,7 @@ void ofApp::setup() {
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
 
+	height = 0;
 }
 
 void ofApp::loadVbo()
@@ -246,6 +247,13 @@ void ofApp::update() {
 			glm::vec3 pos = glm::vec3(p.position.x, p.position.y + 25, p.position.z + 4);
 			cam.setPosition(pos);
 			cam.setTarget(p.position);
+		}
+		AGL.setOrigin(Vector3(p.position.x, p.position.y, p.position.z));
+		pointSelected = octree.intersect(AGL, octree.root, selectedNode);
+		if (pointSelected) {
+			ofVec3f pointRet = octree.mesh.getVertex(selectedNode.points[0]);
+			height = AGL.origin.y() - pointRet.y;
+			cout << height << endl;
 		}
 	}
 }
@@ -778,6 +786,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 			landerBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 			Particle &p = landerEmitter.sys->particles[0];
 			p.position.set(lander.getPosition());
+			AGL = Ray(Vector3(p.position.x, p.position.y, p.position.z), Vector3(0, -1, 0));
 		}
 	}
 }
