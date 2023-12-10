@@ -34,7 +34,7 @@ void ParticleEmitter::init() {
 	lastSpawned = 0;
 	radius = 1;
 	particleRadius = .1;
-	visible = true;
+	//visible = true;
 	type = SingleEmitter;
 	groupSize = 1;
 	position = ofVec3f(0, 0, 0);
@@ -134,12 +134,37 @@ void ParticleEmitter::spawn(float time) {
 		particle.lifespan = lifespan;
 
 		break;
-	//Lander Emitter of 1 particle
+		//Lander Emitter of 1 particle
 	case SingleEmitter:
 		particle.velocity = glm::vec3(0, 0, 0);
-		particle.position.set(glm::vec3(0,0,0));
+		particle.position.set(glm::vec3(0, 0, 0));
 		//Makes particle last forever
 		particle.lifespan = -1;
+		break;
+	case RingEmitter:
+		int numParticles = 10;  //Particles in the ring
+		float radius = .35;     //Radius of the ring
+		float verticalSpeed = -5.0;  //Vertical speed out exhaust
+
+		for (int i = 0; i < numParticles; ++i) {
+			float angle = ofRandom(0, 2 * PI);  //Particles distribute randomly into the circle
+			float x = position.x + radius * cos(angle);
+			float y = position.y;
+			float z = position.z + radius * sin(angle);
+
+			ofVec3f dir = glm::normalize(glm::vec3(0, verticalSpeed, 0));  //Moves the particles downard
+			float speed = velocity.length();
+
+			particle.velocity = dir * speed;
+			particle.position.set(x, y, z);
+			particle.lifespan = .30;
+			particle.birthtime = time;
+			//particle.radius = particleRadius;
+
+			sys->add(particle);
+
+		}
+		break;
 
 	}
 

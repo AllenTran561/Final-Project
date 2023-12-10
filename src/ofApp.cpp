@@ -74,7 +74,7 @@ void ofApp::setup() {
 	gui.add(mass.setup("Mass", 1, .1, 10));
 	gui.add(damping.setup("Damping", .99, .8, 1.0));
 	gui.add(gravity.setup("Gravity", 0, -20, 20));
-	gui.add(radius.setup("Radius", .14, 1, 10));
+	gui.add(radius.setup("Radius", .1, 1, 10));
 	gui.add(turbMin.setup("Turbulence Min", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
 	gui.add(turbMax.setup("Turbulence Max", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
 	gui.add(radialForceVal.setup("Radial Force", 1000, 100, 5000));
@@ -121,16 +121,17 @@ void ofApp::setup() {
 	landerEmitter.spawn(ofGetElapsedTimeMillis());
 
 	exhaustEmitter.sys->addForce(turbulenceForce);
-	exhaustEmitter.sys->addForce(gravityForce);
+	//exhaustEmitter.sys->addForce(gravityForce);
 	exhaustEmitter.sys->addForce(impulseForce);
 	exhaustEmitter.sys->addForce(cyclicForce);
 
-	exhaustEmitter.particleColor = ofColor::red;
-	exhaustEmitter.setVelocity(ofVec3f(0, -5, 0));
+	//exhaustEmitter.particleColor = ofColor::red;
+	exhaustEmitter.setVelocity(ofVec3f(0, -8, 0));
 	exhaustEmitter.setOneShot(true);
-	exhaustEmitter.setEmitterType(DirectionalEmitter);
-	exhaustEmitter.setGroupSize(numParticles);
-	exhaustEmitter.setRandomLife(true);
+	//exhaustEmitter.setEmitterType(DirectionalEmitter);
+	exhaustEmitter.setEmitterType(RingEmitter);
+	//exhaustEmitter.setGroupSize(numParticles);
+	//exhaustEmitter.setRandomLife(true);
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
 
@@ -163,9 +164,9 @@ void ofApp::update() {
 	// live update of emmitter parameters (with sliders)
 	//
 	exhaustEmitter.setParticleRadius(radius);
-	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
-	exhaustEmitter.setMass(mass);
-	exhaustEmitter.setDamping(damping);
+	//exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
+	//exhaustEmitter.setMass(mass);
+	//exhaustEmitter.setDamping(damping);
 	//exhaustEmitter.setGroupSize(numParticles);
 
 	// live update of forces  (with sliders)
