@@ -2,10 +2,11 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
-#include  "ofxAssimpModelLoader.h"
+#include "ofxAssimpModelLoader.h"
 #include "Octree.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
+#include "TransformObject.h"
 
 class ofApp : public ofBaseApp{
 
@@ -85,4 +86,9 @@ class ofApp : public ofBaseApp{
 		map<int, ofColor> colorMap;
 		map<int, bool> keymap;
 		const float selectionRange = 4.0;
+
+		bool bDefaultCam;
+		bool bThirdPersonCam;
+		bool bTopDownCam;
+
 };

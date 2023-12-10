@@ -25,10 +25,13 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
-	cam.setDistance(10);
+	bDefaultCam = true;
+	bThirdPersonCam = false;
+	bTopDownCam = false;
+	//Default Cam
+	cam.setDistance(20);
 	cam.setNearClip(.1);
 	cam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
-	ofSetVerticalSync(true);
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
@@ -70,7 +73,7 @@ void ofApp::setup() {
 		{9, ofColor::brown},
 		{10, ofColor::white}
 	};
-
+	
 	//Sets up Gravity and Impulse Force
 	gravityForce = new GravityForce(ofVec3f(0, -.5, 0));
 	neutralForce = new GravityForce(ofVec3f(0, .001, 0));
@@ -105,7 +108,7 @@ void ofApp::update() {
 	}
 	//Arrow down to pitch nose down
 	if (keymap[OF_KEY_DOWN]) {
-		p.addAngularForces(100);
+		p.addAngularForces(-100);
 	}
 	//Arrow right to move right
 	if (keymap[OF_KEY_RIGHT]) {
@@ -121,12 +124,26 @@ void ofApp::update() {
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 1, 0, 0);
 		landerEmitter.update();
-		/* Lags the program
-		checkCollision();
-		*/
+	
+		// Lags the program
+		//checkCollision();
+		//
 		if (collision) {
 			landerEmitter.sys->addForce(neutralForce);
 			landerEmitter.sys->addForce(impulseForce);
+		}
+		if (bDefaultCam) {
+			cam.setDistance(20);
+		}
+		if (bThirdPersonCam) {
+			glm::vec3 pos = glm::vec3(p.position.x, p.position.y + 2.5, p.position.z + 10);
+			cam.setPosition(pos);
+			cam.setTarget(p.position + p.heading() * 20);
+		}
+		if (bTopDownCam) {
+			glm::vec3 pos = glm::vec3(p.position.x, p.position.y + 25, p.position.z + 4);
+			cam.setPosition(pos);
+			cam.setTarget(p.position);
 		}
 	}
 }
@@ -165,22 +182,22 @@ void ofApp::draw() {
 				for (int i = 0; i < lander.getNumMeshes(); i++) {
 					ofPushMatrix();
 					ofMultMatrix(lander.getModelMatrix());
-					ofRotate(-90, 1, 0, 0);
-					Octree::drawBox(bboxList[i]);
+					//ofRotate(-90, 1, 0, 0);
+					Octree::drawBox(bboxList[1]);
 					ofPopMatrix();
 				}
 			}
 
 			if (bLanderSelected) {
 
-				ofVec3f min = lander.getSceneMin() + lander.getPosition();
-				ofVec3f max = lander.getSceneMax() + lander.getPosition();
-
+				ofVec3f min = (lander.getSceneMin() + lander.getPosition());
+				ofVec3f max = (lander.getSceneMax() + lander.getPosition());
 				Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 				ofNoFill();
 				ofSetColor(ofColor::white);
+				ofPushMatrix();
 				Octree::drawBox(bounds);
-
+				ofPopMatrix();
 				// draw colliding boxes
 				//
 				ofSetColor(ofColor::lightBlue);
@@ -264,8 +281,24 @@ void ofApp::drawAxis(ofVec3f location) {
 void ofApp::keyPressed(int key) {
 
 	switch (key) {
-
+	//Turns on top down cam
+	case '1':
+		bTopDownCam = true;
+		bThirdPersonCam = false;
+		bDefaultCam = false;
+		break;
+	//Turns on top down cam
 	case '2':
+		bTopDownCam = false;
+		bThirdPersonCam = false;
+		bDefaultCam = true;
+		break;
+	case '3':
+		bTopDownCam = false;
+		bThirdPersonCam = true;
+		bDefaultCam = false;
+		break;
+	case '4':
 		if (bLanderLoaded && collision) {
 			glm::vec3 pos = lander.getPosition();
 			lander.setPosition(pos.x, pos.y + 4, pos.z);
@@ -563,30 +596,6 @@ void ofApp::savePicture() {
 }
 
 //--------------------------------------------------------------
-//
-// support drag-and-drop of model (.obj) file loading.  when
-// model is dropped in viewport, place origin under cursor
-//
-void ofApp::dragEvent2(ofDragInfo dragInfo) {
-
-	ofVec3f point;
-	mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
-	if (lander.loadModel(dragInfo.files[0])) {
-		lander.setScaleNormalization(false);
-		lander.setScale(.01,.01,.01);
-		lander.setRotation(0, 90, 0, 1, 0);
-	//	lander.setPosition(point.x, point.y, point.z);
-		lander.setPosition(1, 1, 0);
-
-		bLanderLoaded = true;
-		for (int i = 0; i < lander.getMeshCount(); i++) {
-			bboxList.push_back(Octree::meshBounds(lander.getMesh(i)));
-		}
-		//cout << "Mesh Count: " << lander.getMeshCount() << endl;
-	}
-	else cout << "Error: Can't load model" << dragInfo.files[0] << endl;
-}
-
 bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point) {
 	ofVec2f mouse(mouseX, mouseY);
 	ofVec3f rayPoint = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
@@ -603,10 +612,10 @@ bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 	if (lander.loadModel(dragInfo.files[0])) {
 		bLanderLoaded = true;
-		lander.setScaleNormalization(false);
-		lander.setScale(.8, .8, .8);
 		lander.setRotation(1, -90, 1, 0, 0);
 		lander.setPosition(0, 0, 0);
+		lander.setScaleNormalization(false);
+		lander.setScale(.8, .8, .8);
 		cout << "number of meshes: " << lander.getNumMeshes() << endl;
 		bboxList.clear();
 		for (int i = 0; i < lander.getMeshCount(); i++) {
@@ -683,13 +692,13 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	else return glm::vec3(0, 0, 0);
 }
 
-
 void ofApp::checkCollision() {
+	
 	ofVec3f min = lander.getSceneMin() + lander.getPosition();
 	ofVec3f max = lander.getSceneMax() + lander.getPosition();
 
 	Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
-
+	
 	colBoxList.clear();
 	collision = octree.intersect(bounds, octree.root, colBoxList);
 }
