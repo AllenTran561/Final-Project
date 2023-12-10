@@ -43,6 +43,7 @@ class ofApp : public ofBaseApp{
 
 		void loadVbo();
 		Ray AGL;
+		bool bAGL;
 		float height;
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander, spaceship;

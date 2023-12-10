@@ -24,6 +24,7 @@ void ofApp::setup() {
 	bCtrlKeyDown = false;
 	bLanderLoaded = false;
 	bTerrainSelected = true;
+	bAGL = true;
 	//	ofSetWindowShape(1024, 768);
 	bDefaultCam = true;
 	bThirdPersonCam = false;
@@ -183,7 +184,7 @@ void ofApp::update() {
 	//Checks keys
 	//Space to move foward
 	if (keymap[' ']) {
-		p.addForces(10 * p.heading());
+		p.addForces(10 * glm::vec3(0, 1, 0));
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
 		glm::vec3 landerPosition = lander.getPosition();
@@ -193,40 +194,40 @@ void ofApp::update() {
 	}
 	//Control to move backwards
 	if (keymap[OF_KEY_CONTROL]) {
-		p.addForces(-10 * p.heading());
+		p.addForces(-10 * glm::vec3(0, 1, 0));
 	}
 	//Arrow up to pitch nose up
 	if (keymap[OF_KEY_UP]) {
-		p.addAngularForces(100);
+		p.addForces(10 * p.heading());
 	}
 	//Arrow down to pitch nose down
 	if (keymap[OF_KEY_DOWN]) {
-		p.addAngularForces(-100);
+		p.addForces(-10 * p.heading());
 	}
 	//Arrow right to move right
 	if (keymap[OF_KEY_RIGHT]) {
-		p.addForces(10 * glm::vec3(1, 0, 0));
+		p.addAngularForces(100);
 	}
 	//Arrow left to move left 
 	if (keymap[OF_KEY_LEFT]) {
-		p.addForces(10 * glm::vec3(-1, 0, 0));
+		p.addAngularForces(-100);
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
 		//ofVec3f min =  0.01 + ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z());
 		//ofVec3f max =  0.01 + ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z());
-		
-		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
-		ofVec3f max = (ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z()) + lander.getPosition());
-		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
-		checkCollision();
 
 		impulseForce->setMagnitude(p.velocity.length());
 		neutralForce->set(-p.velocity);
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
-		lander.setRotation(0, p.rotation, 1, 0, 0);
+		lander.setRotation(0, p.rotation, 0, 1, 0);
 		landerEmitter.update();
 		exhaustEmitter.update();
+
+		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
+		ofVec3f max = (ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z()) + lander.getPosition());
+		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+		checkCollision();
 
 		if (collision) {
 		//	landerEmitter.sys->addForce(neutralForce);
@@ -349,7 +350,7 @@ void ofApp::draw() {
 
 	// if point selected, draw a sphere
 	//
-	if (pointSelected) {
+	if (pointSelected && bAGL) {
 		ofVec3f p = octree.mesh.getVertex(selectedNode.points[0]);
 		ofVec3f d = p - cam.getPosition();
 		ofSetColor(ofColor::lightGreen);
@@ -451,8 +452,9 @@ void ofApp::keyPressed(int key) {
 	case 'f':
 		ofToggleFullscreen();
 		break;
-	case 'H':
-	case 'h':
+	case 'D':
+	case 'd':
+		
 		break;
 	case 'L':
 	case 'l':
