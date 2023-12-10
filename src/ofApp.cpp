@@ -120,14 +120,22 @@ void ofApp::update() {
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
+		glm::mat4 a = lander.getModelMatrix();
+
+		//ofVec3f min =  0.01+ ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z());
+		//ofVec3f max =  0.01 + ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z());
+		
+		ofVec3f min = (lander.getSceneMin() + lander.getPosition());
+		ofVec3f max = (lander.getSceneMax() + lander.getPosition());
+		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+		checkCollision();
+
+
 		impulseForce->setMagnitude(p.velocity.length());
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 1, 0, 0);
 		landerEmitter.update();
 	
-		// Lags the program
-		//checkCollision();
-		//
 		if (collision) {
 			landerEmitter.sys->addForce(neutralForce);
 			landerEmitter.sys->addForce(impulseForce);
@@ -189,14 +197,10 @@ void ofApp::draw() {
 			}
 
 			if (bLanderSelected) {
-
-				ofVec3f min = (lander.getSceneMin() + lander.getPosition());
-				ofVec3f max = (lander.getSceneMax() + lander.getPosition());
-				Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 				ofNoFill();
 				ofSetColor(ofColor::white);
 				ofPushMatrix();
-				Octree::drawBox(bounds);
+				Octree::drawBox(boundingBox);
 				ofPopMatrix();
 				// draw colliding boxes
 				//
@@ -613,7 +617,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 	if (lander.loadModel(dragInfo.files[0])) {
 		bLanderLoaded = true;
 		lander.setRotation(1, -90, 1, 0, 0);
-		lander.setPosition(0, 0, 0);
 		lander.setScaleNormalization(false);
 		lander.setScale(.8, .8, .8);
 		cout << "number of meshes: " << lander.getNumMeshes() << endl;
@@ -651,8 +654,9 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 			// Now position the lander's origin at that intersection point
 			//
-			glm::vec3 min = lander.getSceneMin();
-			glm::vec3 max = lander.getSceneMax();
+			glm::mat4 a = lander.getModelMatrix();
+			ofVec3f min = (lander.getSceneMin()) * a;
+			ofVec3f max = (lander.getSceneMax()) * a;
 			float offset = (max.y - min.y) / 2.0;
 			lander.setPosition(intersectPoint.x, intersectPoint.y - offset, intersectPoint.z);
 
@@ -693,12 +697,6 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 }
 
 void ofApp::checkCollision() {
-	
-	ofVec3f min = lander.getSceneMin() + lander.getPosition();
-	ofVec3f max = lander.getSceneMax() + lander.getPosition();
-
-	Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
-	
 	colBoxList.clear();
-	collision = octree.intersect(bounds, octree.root, colBoxList);
+	collision = octree.intersect(boundingBox, octree.root, colBoxList);
 }

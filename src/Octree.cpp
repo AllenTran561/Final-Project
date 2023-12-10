@@ -9,12 +9,9 @@
 //  Copying or use without permission is prohibited by law. 
 //
 
-
 #include "Octree.h"
 #include "box.h"
  
-
-
 //draw a box from a "Box" class  
 //
 void Octree::drawBox(const Box &box) {
@@ -188,45 +185,46 @@ void Octree::subdivide(const ofMesh & mesh, TreeNode & node, int numLevels, int 
 //
 
 bool Octree::intersect(const Ray &ray, const TreeNode & node, TreeNode & nodeRtn) {
-	bool intersects = false;
-	vector<TreeNode> children = node.children;
-	for (int i = 0; i < children.size(); i++) {
-		TreeNode child = node.children[i];
-		if (child.box.intersect(ray, 0, 10000)) {
-			if (child.points.size() == 1) {
-				nodeRtn = child;
-				intersects = true;
-			}
-			else if (child.points.size() > 1) {
-				return intersect(ray, child, nodeRtn);
+	if (node.box.intersect(ray, 0, std::numeric_limits<float>::max())) {
+		if (node.children.empty()) {
+			nodeRtn = node;
+			return true;
+		}
+		else {
+			for (int i = 0; i < node.children.size(); i++) {
+				const TreeNode& child = node.children[i];
+				TreeNode childResult;
+				if (intersect(ray, child, childResult)) {
+					nodeRtn = childResult;
+					return true;
+				}
 			}
 		}
 	}
-	return intersects;
+	return false;
 }
 
 bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn) {
-	bool intersects;
 	Box b = box;
-	vector<TreeNode> children = node.children;
-	for (int i = 0; i < children.size(); i++) {
-		TreeNode child = children[i];
-		if (b.overlap(child.box)) {
-			if (child.children.size() != 0) {
-				intersect(box, child, boxListRtn);
-			}
-			else if (child.children.size() == 0) {
-				boxListRtn.push_back(child.box);
+	if (b.overlap(node.box)) {
+		if (node.children.empty()) {
+			boxListRtn.push_back(node.box);
+			return true;
+		}
+		else {
+			for (int i = 0; i < node.children.size(); i++) {
+				TreeNode& child = node.children[i];
+				vector<Box> childResult;
+
+				if (intersect(box, child, boxListRtn)) {
+					boxListRtn = childResult;
+					return true;
+				}
 			}
 		}
 	}
-	if (boxListRtn.size() >= 10) {
-		intersects = true;
-	}
-	else {
-		intersects = false;
-	}
-	return intersects;
+	// No intersection with the current node or its children
+	return false;
 }
 
 
