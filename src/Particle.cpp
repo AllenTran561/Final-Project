@@ -45,7 +45,7 @@ void Particle::integrate() {
 	// update acceleration with accumulated paritcles forces
 	// remember :  (f = ma) OR (a = 1/m * f)
 	//
-	ofVec3f accel = acceleration;    // start with any acceleration already on the particle
+	ofVec3f accel = acceleration;   // start with any acceleration already on the particle
 	accel += (forces * (1.0 / mass));
 	velocity += accel * dt;
 

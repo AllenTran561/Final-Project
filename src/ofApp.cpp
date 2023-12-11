@@ -106,6 +106,10 @@ void ofApp::setup() {
 	//Sets up Gravity and Impulse Force
 	gravityForce = new GravityForce(ofVec3f(0, -5, 0));
 	neutralForce = new GravityForce(ofVec3f(0, 5, 0));
+	explosiveForce = new ImpulseRadialForce(.2);
+	explosiveForce->setHeight(.01);
+	explosiveForce->applyOnce = true;
+	explosiveTurbulentForce = new TurbulenceForce(ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5));
 	impulseForce = new ImpulseRadialForce(0);
 	turbulenceForce = new TurbulenceForce(ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5));
 	cyclicForce = new CyclicForce(0);
@@ -229,9 +233,21 @@ void ofApp::update() {
 		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 		checkCollision();
 
+		if (gameOver) {
+			landerEmitter.sys->reset();
+			landerEmitter.sys->addForce(explosiveTurbulentForce);
+			landerEmitter.sys->addForce(explosiveForce);
+			p.rotation += 2;
+			landerEmitter.sys->reset();
+		}
 		if (collision) {
 			neutralForce->set(glm::vec3(0, .02, 0));
 			landerEmitter.sys->addForce(neutralForce);
+			float force = p.velocity.length();
+			if (force > 4 && !gameOver) {
+				p.velocity *= 0;
+				gameOver = true;
+			}
 		}
 		else {
 			neutralForce->set(glm::vec3(0, 0, 0));

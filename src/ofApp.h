@@ -87,6 +87,7 @@ class ofApp : public ofBaseApp{
 		bool bDisplayBBoxes = false;
 		bool bTimer = false;
 		bool collision = false;
+		bool gameOver = false;
 
 		bool bLanderLoaded;
 		bool bTerrainSelected;
@@ -98,6 +99,8 @@ class ofApp : public ofBaseApp{
 		ParticleEmitter landerEmitter;
 
 		ImpulseRadialForce *impulseForce;
+		ImpulseRadialForce* explosiveForce;
+		TurbulenceForce* explosiveTurbulentForce;
 		GravityForce* gravityForce;
 		GravityForce* neutralForce;
 		TurbulenceForce* turbulenceForce;
