@@ -29,6 +29,7 @@ void ofApp::setup() {
 	bDefaultCam = true;
 	bThirdPersonCam = false;
 	bTopDownCam = false;
+	bExhaustCam = false;
 	//Default Cam
 	cam.setDistance(20);
 	cam.setNearClip(.1);
@@ -246,6 +247,10 @@ void ofApp::update() {
 			cam.setPosition(pos);
 			cam.setTarget(p.position);
 		}
+		if (bExhaustCam) {
+			cam.setPosition(lander.getPosition().x, lander.getPosition().y - 1.12, lander.getPosition().z);
+			cam.setTarget(glm::vec3(0, 0, 0));
+		}
 		AGL.setOrigin(Vector3(p.position.x, p.position.y, p.position.z));
 		pointSelected = octree.intersect(AGL, octree.root, selectedNode);
 		if (pointSelected) {
@@ -403,24 +408,34 @@ void ofApp::drawAxis(ofVec3f location) {
 void ofApp::keyPressed(int key) {
 
 	switch (key) {
-	//Turns on top down cam
+		//Turns on top down cam
 	case '1':
 		bTopDownCam = true;
 		bThirdPersonCam = false;
 		bDefaultCam = false;
+		bExhaustCam = false;
 		break;
-	//Turns on top down cam
+		//Turns on top down cam
 	case '2':
 		bTopDownCam = false;
 		bThirdPersonCam = false;
 		bDefaultCam = true;
+		bExhaustCam = false;
 		break;
 	case '3':
 		bTopDownCam = false;
 		bThirdPersonCam = true;
 		bDefaultCam = false;
+		bExhaustCam = false;
 		break;
+		//Turns on exhaust view cam
 	case '4':
+		bTopDownCam = false;
+		bThirdPersonCam = false;
+		bDefaultCam = false;
+		bExhaustCam = true;
+		break;
+	case '5':
 		if (bLanderLoaded && collision) {
 			glm::vec3 pos = lander.getPosition();
 			lander.setPosition(pos.x, pos.y + 4, pos.z);
