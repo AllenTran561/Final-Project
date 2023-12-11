@@ -127,10 +127,10 @@ void ofApp::setup() {
 	goalEmitter.spawn(ofGetElapsedTimeMillis());
 	goalEmitter.spawn(ofGetElapsedTimeMillis());
 
+	//Sets up Exhaust Emitter
 	exhaustEmitter.sys->addForce(turbulenceForce);
 	exhaustEmitter.sys->addForce(impulseForce);
 	exhaustEmitter.sys->addForce(cyclicForce);
-
 	exhaustEmitter.particleColor = ofColor::red;
 	exhaustEmitter.setVelocity(ofVec3f(0, -8, 0));
 	exhaustEmitter.setOneShot(true);
@@ -138,6 +138,7 @@ void ofApp::setup() {
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
 
+	//Sound setup
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
 
@@ -625,14 +626,11 @@ void ofApp::keyReleased(int key) {
 	keymap[key] = false;
 }
 
-
-
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
 
 	
 }
-
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
