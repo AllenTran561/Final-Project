@@ -509,6 +509,7 @@ void ofApp::keyPressed(int key) {
 		bThirdPersonCam = false;
 		bDefaultCam = false;
 		bExhaustCam = false;
+		bSideCam = false;
 		break;
 		//Turns on top down cam
 	case '5':
@@ -516,12 +517,14 @@ void ofApp::keyPressed(int key) {
 		bThirdPersonCam = false;
 		bDefaultCam = true;
 		bExhaustCam = false;
+		bSideCam = false;
 		break;
 	case '3':
 		bTopDownCam = false;
 		bThirdPersonCam = true;
 		bDefaultCam = false;
 		bExhaustCam = false;
+		bSideCam = false;
 		break;
 		//Turns on exhaust view cam
 	case '4':
@@ -529,6 +532,7 @@ void ofApp::keyPressed(int key) {
 		bThirdPersonCam = false;
 		bDefaultCam = false;
 		bExhaustCam = true;
+		bSideCam = false;
 		break;
 	case '2':
 		bTopDownCam = false;
