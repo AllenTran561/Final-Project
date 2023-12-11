@@ -3,11 +3,11 @@
 //
 //  Kevin M. Smith
 //
-//  Octree Test - startup scene
+//  Final Project
 // 
 //
-//  Student Name:   < Allen Tran >
-//  Date: <date of last version>
+//  Student Name:   <Allen Tran, Mark Ibarra>
+//  Date: <12/10/23>
 
 
 #include "ofApp.h"
@@ -310,6 +310,11 @@ void ofApp::update() {
 			cam.setPosition(lander.getPosition().x, lander.getPosition().y - 1.12, lander.getPosition().z);
 			cam.setTarget(lander.getPosition() + targetOffset);
 		}
+		if (bSideCam) {
+			glm::vec3 pos = glm::vec3(p.position.x + 10, p.position.y + 10, p.position.z);
+			cam.setPosition(pos);
+			cam.setTarget(p.position);
+		}
 		AGL.setOrigin(Vector3(p.position.x, p.position.y, p.position.z));
 		pointSelected = octree.intersect(AGL, octree.root, selectedNode);
 		if (pointSelected) {
@@ -488,7 +493,7 @@ void ofApp::keyPressed(int key) {
 		bExhaustCam = false;
 		break;
 		//Turns on top down cam
-	case '2':
+	case '5':
 		bTopDownCam = false;
 		bThirdPersonCam = false;
 		bDefaultCam = true;
@@ -507,18 +512,12 @@ void ofApp::keyPressed(int key) {
 		bDefaultCam = false;
 		bExhaustCam = true;
 		break;
-	case '5':
-		if (bLanderLoaded && collision) {
-			glm::vec3 pos = lander.getPosition();
-			lander.setPosition(pos.x, pos.y + 4, pos.z);
-			ofVec3f min = lander.getSceneMin() + lander.getPosition();
-			ofVec3f max = lander.getSceneMax() + lander.getPosition();
-
-			Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
-
-			colBoxList.clear();
-			collision = octree.intersect(bounds, octree.root, colBoxList);
-		}
+	case '2':
+		bTopDownCam = false;
+		bThirdPersonCam = false;
+		bDefaultCam = false;
+		bExhaustCam = false;
+		bSideCam = true;
 		break;
 	case 'z':
 		toggleTimer();

@@ -134,6 +134,7 @@ class ofApp : public ofBaseApp{
 		bool bThirdPersonCam;
 		bool bTopDownCam;
 		bool bExhaustCam;
+		bool bSideCam;
 
 		// textures
 		ofTexture  particleTex;
