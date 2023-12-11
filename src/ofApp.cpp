@@ -31,6 +31,9 @@ void ofApp::setup() {
 	bTopDownCam = false;
 	bExhaustCam = false;
 	gameOver = false;
+	//Setup fuel
+	fuelGauge = 120.0;
+	fuelUsageRate = 8.23;
 	//Default Cam
 	cam.setDistance(20);
 	cam.setNearClip(.1);
@@ -110,7 +113,6 @@ void ofApp::setup() {
 	impulseForce = new ImpulseRadialForce(0);
 	turbulenceForce = new TurbulenceForce(ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5));
 	cyclicForce = new CyclicForce(0);
-
 
 	//Sets up Lander Emitter
 	landerEmitter.sys->addForce(gravityForce);
@@ -446,13 +448,11 @@ void ofApp::draw() {
 			//Octree::drawBox(goalBox[i]);
 		}
 	}
-
 	explosionEmitter.draw();
-
+	exhaustEmitter.draw();
 	shader.begin();
 	// draw exhaust particle emitter...
 	//
-	exhaustEmitter.draw();
 	particleTex.bind();
 	vbo.draw(GL_POINTS, 0, (int)exhaustEmitter.sys->particles.size());
 	particleTex.unbind();
@@ -468,6 +468,10 @@ void ofApp::draw() {
 	ofDrawBitmapString("Fuel: ", ofGetWidth() - 280, 30);
 	ofDrawBitmapString(fuelGauge, ofGetWidth() - 230, 30);
 
+	if (gameOver) {
+		ofSetColor(ofColor::red);
+		ofDrawBitmapString("Game Over", ofGetWidth() / 2, ofGetHeight() / 2);
+	}
 }
 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
@@ -561,8 +565,16 @@ void ofApp::keyPressed(int key) {
 	case 'o':
 		bDisplayOctree = !bDisplayOctree;
 		break;
+		//resets all emitters
 	case 'r':
-		cam.reset();
+		landerEmitter.sys->forces.clear();
+		landerEmitter.sys->particles.clear();
+		goalEmitter.sys->particles.clear();		
+		exhaustEmitter.sys->forces.clear();
+		exhaustEmitter.sys->particles.clear();
+		explosionEmitter.sys->forces.clear();
+		explosionEmitter.sys->particles.clear();
+		setup();
 		break;
 	case 's':
 		savePicture();

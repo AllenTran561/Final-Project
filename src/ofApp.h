@@ -122,8 +122,8 @@ class ofApp : public ofBaseApp{
 		ofPlanePrimitive backgroundPlane;
 
 		//Fuel System
-		float fuelGauge = 120.0;
-		float fuelUsageRate = 8.23;
+		float fuelGauge;
+		float fuelUsageRate;
 		bool isSpacebarPressed = false;
 
 
