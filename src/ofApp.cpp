@@ -30,6 +30,7 @@ void ofApp::setup() {
 	bThirdPersonCam = false;
 	bTopDownCam = false;
 	bExhaustCam = false;
+	gameOver = false;
 	//Default Cam
 	cam.setDistance(20);
 	cam.setNearClip(.1);
@@ -122,6 +123,14 @@ void ofApp::setup() {
 	landerEmitter.start();
 	landerEmitter.spawn(ofGetElapsedTimeMillis());
 
+	//Sets up Goals to land on
+	goalEmitter.setEmitterType(SingleEmitter);
+	goalEmitter.setGroupSize(3);
+	goalEmitter.start();
+	goalEmitter.spawn(ofGetElapsedTimeMillis());
+	goalEmitter.spawn(ofGetElapsedTimeMillis());
+	goalEmitter.spawn(ofGetElapsedTimeMillis());
+
 	exhaustEmitter.sys->addForce(turbulenceForce);
 	//exhaustEmitter.sys->addForce(gravityForce);
 	exhaustEmitter.sys->addForce(impulseForce);
@@ -144,6 +153,13 @@ void ofApp::setup() {
 
 	backgroundImage.load("images/galaxy.jpg");
 
+	for (int i = 0; i < goalEmitter.sys->particles.size(); i++) {
+		ofVec3f p = octree.mesh.getVertex(ofRandom(0, mars.getMesh(0).getNumVertices()));
+		goalEmitter.sys->particles[i].position = p;
+		Vector3 pos = Vector3(p.x, p.y, p.z);
+		Box box = Box(Vector3(-1, -1, -1) + pos, Vector3(1, 1, 1) + pos);
+		goalBox.push_back(box);
+	}
 }
 
 void ofApp::loadVbo()
@@ -191,7 +207,7 @@ void ofApp::update() {
 	//Checks keys
 	//Space to move up
 	if (keymap[' ']) {
-		p.addForces(10 * glm::vec3(0, 1, 0));
+		p.addForces(5 * glm::vec3(0, 1, 0));
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
 		glm::vec3 landerPosition = p.position;
@@ -203,15 +219,15 @@ void ofApp::update() {
 	}
 	//Control to move down
 	if (keymap[OF_KEY_CONTROL]) {
-		p.addForces(-10 * glm::vec3(0, 1, 0));
+		p.addForces(-5 * glm::vec3(0, 1, 0));
 	}
 	//Arrow up to move foward
 	if (keymap[OF_KEY_UP]) {
-		p.addForces(10 * p.heading());
+		p.addForces(5 * p.heading());
 	}
 	//Arrow down to backward
 	if (keymap[OF_KEY_DOWN]) {
-		p.addForces(-10 * p.heading());
+		p.addForces(-5 * p.heading());
 	}
 	//Arrow right to rotate clockwise
 	if (keymap[OF_KEY_RIGHT]) {
@@ -237,14 +253,14 @@ void ofApp::update() {
 			landerEmitter.sys->reset();
 			landerEmitter.sys->addForce(explosiveTurbulentForce);
 			landerEmitter.sys->addForce(explosiveForce);
-			p.rotation += 2;
+			p.rotation += 4;
 			landerEmitter.sys->reset();
 		}
 		if (collision) {
 			neutralForce->set(glm::vec3(0, .02, 0));
 			landerEmitter.sys->addForce(neutralForce);
 			float force = p.velocity.length();
-			if (force > 4 && !gameOver) {
+			if (force > 5 && !gameOver) {
 				p.velocity *= 0;
 				gameOver = true;
 			}
@@ -252,6 +268,13 @@ void ofApp::update() {
 		else {
 			neutralForce->set(glm::vec3(0, 0, 0));
 			landerEmitter.sys->addForce(neutralForce);
+		}
+		for (int i = 0; i < goalEmitter.sys->particles.size(); i++) {
+			if (goalBox[i].overlap(boundingBox)) {
+				goalBox.erase(goalBox.begin() + i);
+				goalEmitter.sys->particles.erase(goalEmitter.sys->particles.begin() + i);
+				cout << "here" << endl;
+			}
 		}
 		if (bDefaultCam) {
 			cam.setDistance(20);
@@ -378,8 +401,17 @@ void ofApp::draw() {
 	if (pointSelected && bAGL) {
 		ofVec3f p = octree.mesh.getVertex(selectedNode.points[0]);
 		ofVec3f d = p - cam.getPosition();
-		ofSetColor(ofColor::lightGreen);
-		ofDrawSphere(p, .02 * d.length());
+		ofSetColor(ofColor::red);
+		ofDrawSphere(p, .01 * d.length());
+	}
+	if (bLanderLoaded) {
+		for (int i = 0; i < goalEmitter.sys->particles.size(); i++) {
+			ofVec3f p = goalEmitter.sys->particles[i].position;
+			ofVec3f d = p - cam.getPosition();
+			ofSetColor(ofColor::green);
+			ofDrawSphere(p, .02 * d.length());
+			//Octree::drawBox(goalBox[i]);
+		}
 	}
 
 	shader.begin();
@@ -639,7 +671,6 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 		cout << "Time: " << time << endl;
 	}
 	if (pointSelected) {
-		cout << true << endl;
 		pointRet = octree.mesh.getVertex(selectedNode.points[0]);
 	}
 	return pointSelected;
@@ -829,6 +860,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 			Particle &p = landerEmitter.sys->particles[0];
 			p.position.set(lander.getPosition());
 			AGL = Ray(Vector3(p.position.x, p.position.y, p.position.z), Vector3(0, -1, 0));
+
 		}
 	}
 }

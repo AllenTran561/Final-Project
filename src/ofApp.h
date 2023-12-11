@@ -94,9 +94,13 @@ class ofApp : public ofBaseApp{
 	
 		ofVec3f selectedPoint;
 		ofVec3f intersectPoint;
+		vector<Box> goalBox;
+		map<Box, bool> bGoalBox;
+
 
 		ParticleEmitter exhaustEmitter;
 		ParticleEmitter landerEmitter;
+		ParticleEmitter goalEmitter;
 
 		ImpulseRadialForce *impulseForce;
 		ImpulseRadialForce* explosiveForce;
