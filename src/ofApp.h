@@ -101,6 +101,8 @@ class ofApp : public ofBaseApp{
 		ParticleEmitter exhaustEmitter;
 		ParticleEmitter landerEmitter;
 		ParticleEmitter goalEmitter;
+		ParticleEmitter explosionEmitter;
+
 
 		ImpulseRadialForce *impulseForce;
 		ImpulseRadialForce* explosiveForce;
