@@ -42,7 +42,6 @@ void ofApp::setup() {
 
 	// load textures
 	//
-
 	ofLoadImage(particleTex, "images/dot.png");
 	
 	if (!ofLoadImage(particleTex, "images/dot.png")) {
@@ -69,9 +68,6 @@ void ofApp::setup() {
 	//
 	gui.setup();
 	gui.add(numLevels.setup("Number of Octree Levels", 1, 1, 10));
-	//	gui.add(velocity.setup("Initial Velocity", ofVec3f(0, 20, 0), ofVec3f(0, 0, 0), ofVec3f(100, 100, 100)));	
-	//	gui.add(lifespan.setup("Lifespan", 2.0, .1, 10.0));
-	//	gui.add(rate.setup("Rate", 1.0, .5, 60.0));
 	gui.add(numParticles.setup("Number of Particles", 15, 0, 50));
 	gui.add(lifespanRange.setup("Lifespan Range", ofVec2f(1, 6), ofVec2f(.1, .2), ofVec2f(3, 10)));
 	gui.add(mass.setup("Mass", 1, .1, 10));
@@ -117,7 +113,7 @@ void ofApp::setup() {
 
 
 	//Sets up Lander Emitter
-	//landerEmitter.sys->addForce(gravityForce);
+	landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
@@ -132,21 +128,15 @@ void ofApp::setup() {
 	goalEmitter.spawn(ofGetElapsedTimeMillis());
 
 	exhaustEmitter.sys->addForce(turbulenceForce);
-	//exhaustEmitter.sys->addForce(gravityForce);
 	exhaustEmitter.sys->addForce(impulseForce);
 	exhaustEmitter.sys->addForce(cyclicForce);
 
 	exhaustEmitter.particleColor = ofColor::red;
 	exhaustEmitter.setVelocity(ofVec3f(0, -8, 0));
 	exhaustEmitter.setOneShot(true);
-	//exhaustEmitter.setEmitterType(DirectionalEmitter);
 	exhaustEmitter.setEmitterType(RingEmitter);
-	//exhaustEmitter.setGroupSize(numParticles);
-	//exhaustEmitter.setRandomLife(true);
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
-
-	//height = 0;
 
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
@@ -192,10 +182,6 @@ void ofApp::update() {
 	// live update of emmitter parameters (with sliders)
 	//
 	exhaustEmitter.setParticleRadius(radius);
-	//exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
-	//exhaustEmitter.setMass(mass);
-	//exhaustEmitter.setDamping(damping);
-	//exhaustEmitter.setGroupSize(numParticles);
 
 	// live update of forces  (with sliders)
 	//
@@ -207,13 +193,14 @@ void ofApp::update() {
 
 	//References to lander particle
 	Particle& p = landerEmitter.sys->particles[0];
+
 	//Checks keys
 	//Space to move up
 	if (keymap[' ']) {
 		if (fuelGauge > 0.0) {
 			// If there is remaining fuel, consume it
 			fuelGauge -= ofGetLastFrameTime() * fuelUsageRate;
-			p.addForces(10 * glm::vec3(0, 1, 0));
+			p.addForces(8 * glm::vec3(0, 1, 0));
 
 			//Offset exhaust particles position to appear inside spaceship exhaust 
 			glm::vec3 landerPosition = p.position;
@@ -235,15 +222,15 @@ void ofApp::update() {
 	}
 	//Control to move down
 	if (keymap[OF_KEY_CONTROL]) {
-		p.addForces(-5 * glm::vec3(0, 1, 0));
+		p.addForces(-8 * glm::vec3(0, 1, 0));
 	}
 	//Arrow up to move foward
 	if (keymap[OF_KEY_UP]) {
-		p.addForces(5 * p.heading());
+		p.addForces(8 * p.heading());
 	}
 	//Arrow down to backward
 	if (keymap[OF_KEY_DOWN]) {
-		p.addForces(-5 * p.heading());
+		p.addForces(-8 * p.heading());
 	}
 	//Arrow right to rotate clockwise
 	if (keymap[OF_KEY_RIGHT]) {
@@ -253,18 +240,21 @@ void ofApp::update() {
 	if (keymap[OF_KEY_LEFT]) {
 		p.addAngularForces(-100);
 	}
-	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
+
+		//Connects lander to landerEmitter particle
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 0, 1, 0);
 		landerEmitter.update();
 		exhaustEmitter.update();
 
+		//Updated boundingBox and checks for collision
 		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
 		ofVec3f max = (ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z()) + lander.getPosition());
 		boundingBox = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 		checkCollision();
 
+		//Sets Model to fly up indefinately when gameover
 		if (gameOver) {
 			landerEmitter.sys->reset();
 			landerEmitter.sys->addForce(explosiveTurbulentForce);
@@ -272,6 +262,8 @@ void ofApp::update() {
 			p.rotation += 4;
 			landerEmitter.sys->reset();
 		}
+
+		//Collision Resolution
 		if (collision) {
 			neutralForce->set(glm::vec3(0, .02, 0));
 			landerEmitter.sys->addForce(neutralForce);
@@ -285,6 +277,8 @@ void ofApp::update() {
 			neutralForce->set(glm::vec3(0, 0, 0));
 			landerEmitter.sys->addForce(neutralForce);
 		}
+
+		//Checks Collision with goals
 		for (int i = 0; i < goalEmitter.sys->particles.size(); i++) {
 			if (goalBox[i].overlap(boundingBox)) {
 				goalBox.erase(goalBox.begin() + i);
@@ -292,6 +286,8 @@ void ofApp::update() {
 				pointUp.play();
 			}
 		}
+
+		//Cam Stuff
 		if (bDefaultCam) {
 			cam.setDistance(20);
 		}
@@ -315,6 +311,8 @@ void ofApp::update() {
 			cam.setPosition(pos);
 			cam.setTarget(p.position);
 		}
+
+		//Updates AGL
 		AGL.setOrigin(Vector3(p.position.x, p.position.y, p.position.z));
 		pointSelected = octree.intersect(AGL, octree.root, selectedNode);
 		if (pointSelected) {
@@ -323,6 +321,7 @@ void ofApp::update() {
 		}
 	}
 }
+
 //--------------------------------------------------------------
 void ofApp::draw() {
 
@@ -369,7 +368,6 @@ void ofApp::draw() {
 					ofPopMatrix();
 				}
 			}
-
 			if (bLanderSelected) {
 				ofNoFill();
 				ofSetColor(ofColor::white);
@@ -456,9 +454,8 @@ void ofApp::draw() {
 
 }
 
-// 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
-//
+//--------------------------------------------------------------
 void ofApp::drawAxis(ofVec3f location) {
 
 	ofPushMatrix();
@@ -482,6 +479,7 @@ void ofApp::drawAxis(ofVec3f location) {
 	ofPopMatrix();
 }
 
+//--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
 	switch (key) {
@@ -558,10 +556,9 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'u':
 		break;
+	case 'V':
 	case 'v':
 		togglePointsDisplay();
-		break;
-	case 'V':
 		break;
 	case 'w':
 		toggleWireframeMode();
@@ -572,10 +569,6 @@ void ofApp::keyPressed(int key) {
 		break;
 	case OF_KEY_CONTROL:
 		bCtrlKeyDown = true;
-		break;
-	case OF_KEY_SHIFT:
-		break;
-	case OF_KEY_DEL:
 		break;
 	default:
 		break;
@@ -588,22 +581,27 @@ void ofApp::keyPressed(int key) {
 	keymap[key] = true;
 }
 
+//--------------------------------------------------------------
 void ofApp::toggleWireframeMode() {
 	bWireframe = !bWireframe;
 }
 
+//--------------------------------------------------------------
 void ofApp::toggleSelectTerrain() {
 	bTerrainSelected = !bTerrainSelected;
 }
 
+//--------------------------------------------------------------
 void ofApp::togglePointsDisplay() {
 	bDisplayPoints = !bDisplayPoints;
 }
 
+//--------------------------------------------------------------
 void ofApp::toggleTimer() {
 	bTimer = !bTimer;
 }
 
+//--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
 
 	switch (key) {
@@ -765,8 +763,6 @@ void ofApp::gotMessage(ofMessage msg){
 
 }
 
-
-
 //--------------------------------------------------------------
 // setup basic ambient lighting in GL  (for now, enable just 1 light)
 //
@@ -810,15 +806,6 @@ void ofApp::savePicture() {
 	picture.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
 	picture.save("screenshot.png");
 	cout << "picture saved" << endl;
-}
-
-//--------------------------------------------------------------
-bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point) {
-	ofVec2f mouse(mouseX, mouseY);
-	ofVec3f rayPoint = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
-	ofVec3f rayDir = rayPoint - cam.getPosition();
-	rayDir.normalize();
-	return (rayIntersectPlane(rayPoint, rayDir, planePoint, planeNorm, point));
 }
 
 //--------------------------------------------------------------
