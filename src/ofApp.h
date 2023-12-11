@@ -102,6 +102,8 @@ class ofApp : public ofBaseApp{
 		TurbulenceForce* turbulenceForce;
 		CyclicForce* cyclicForce;
 
+		//Thrust sound
+		ofSoundPlayer thrustSound;
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;

@@ -43,11 +43,11 @@ void ofApp::setup() {
 	//
 
 	ofLoadImage(particleTex, "images/dot.png");
-
-	//if (!ofLoadImage(particleTex, "images/dot.png")) {
-	//	cout << "Particle Texture File: images/dot.png not found" << endl;
-	//	ofExit();
-	//}
+	
+	if (!ofLoadImage(particleTex, "images/dot.png")) {
+		cout << "Particle Texture File: images/dot.png not found" << endl;
+		ofExit();
+	}
 
 	#ifdef TARGET_OPENGLES
 		shader.load("shaders_gles/shader");
@@ -137,6 +137,9 @@ void ofApp::setup() {
 	exhaustEmitter.setPosition(lander.getPosition());
 
 	height = 0;
+
+	thrustSound.load("sounds/thrusters-loop.wav");
+	thrustSound.setLoop(true);
 }
 
 void ofApp::loadVbo()
@@ -188,9 +191,9 @@ void ofApp::update() {
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
 		glm::vec3 landerPosition = p.position;
-		glm::vec3 offset = glm::vec3(0, -1, 0);
+		glm::vec3 offset = glm::vec3(0, -1.5, 0);
 		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
-		exhaustEmitter.setPosition(exhaustEmitterPosition);
+		exhaustEmitter.setPosition(p.position + offset);
 		exhaustEmitter.sys->reset();
 		exhaustEmitter.start();
 	}
@@ -359,10 +362,8 @@ void ofApp::draw() {
 		ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
-	ofPopMatrix();
 
 	shader.begin();
-
 	// draw exhaust particle emitter...
 	//
 	exhaustEmitter.draw();
@@ -510,6 +511,8 @@ void ofApp::keyPressed(int key) {
 	default:
 		break;
 	case ' ':
+		if (!thrustSound.isPlaying())
+			thrustSound.play();
 		break;
 	}
 	keymap[key] = true;
@@ -543,6 +546,10 @@ void ofApp::keyReleased(int key) {
 		bCtrlKeyDown = false;
 		break;
 	case OF_KEY_SHIFT:
+		break;
+	case ' ':
+		if (thrustSound.isPlaying())
+			thrustSound.stop();
 		break;
 	default:
 		break;
