@@ -139,6 +139,11 @@ void ofApp::setup() {
 	exhaustEmitter.setPosition(lander.getPosition());
 
 	//Sound setup
+	explosionEmitter.setEmitterType(RadialEmitter);
+	explosionEmitter.setOneShot(true);
+
+	//height = 0;
+
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
 
@@ -248,6 +253,7 @@ void ofApp::update() {
 		lander.setRotation(0, p.rotation, 0, 1, 0);
 		landerEmitter.update();
 		exhaustEmitter.update();
+		explosionEmitter.update();
 
 		//Updated boundingBox and checks for collision
 		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
@@ -266,6 +272,13 @@ void ofApp::update() {
 
 		//Collision Resolution
 		if (collision) {
+			glm::vec3 landerPosition = p.position;
+			glm::vec3 offset = glm::vec3(ofRandom(-.15, .15), -2, ofRandom(-.15, .15));
+			glm::vec3 exhaustEmitterPosition = landerPosition + offset;
+			explosionEmitter.setPosition(p.position + offset);
+			explosionEmitter.sys->reset();
+			explosionEmitter.start();
+
 			neutralForce->set(glm::vec3(0, .02, 0));
 			landerEmitter.sys->addForce(neutralForce);
 			float force = p.velocity.length();
@@ -433,6 +446,8 @@ void ofApp::draw() {
 			//Octree::drawBox(goalBox[i]);
 		}
 	}
+
+	explosionEmitter.draw();
 
 	shader.begin();
 	// draw exhaust particle emitter...
