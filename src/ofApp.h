@@ -105,6 +105,12 @@ class ofApp : public ofBaseApp{
 		//Thrust sound
 		ofSoundPlayer thrustSound;
 
+		//Background Image
+		//ofEasyCam cam;
+		ofImage backgroundImage;
+		ofPlanePrimitive backgroundPlane;
+
+
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;
 		map<int, bool> keymap;

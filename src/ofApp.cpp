@@ -140,6 +140,9 @@ void ofApp::setup() {
 
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
+
+	backgroundImage.load("images/galaxy.jpg");
+
 }
 
 void ofApp::loadVbo()
@@ -267,11 +270,15 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
+	ofDisableDepthTest();
+	backgroundImage.draw(0, 0, ofGetWidth(), ofGetHeight());
+	ofEnableDepthTest();
+
 	loadVbo();
 
 	landerEmitter.sys->draw();
 
-	ofBackground(ofColor::black);
+	//ofBackground(ofColor::black);
 	glDepthMask(false);
 	if (!bHide) gui.draw();
 	glDepthMask(true);
