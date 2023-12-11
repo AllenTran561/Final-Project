@@ -209,7 +209,9 @@ bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn
 	if (b.overlap(node.box)) {
 		if (node.children.empty()) {
 			boxListRtn.push_back(node.box);
-			return true;
+			if (boxListRtn.size() > 50) {
+				return true;
+			}
 		}
 		else {
 			for (int i = 0; i < node.children.size(); i++) {

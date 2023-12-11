@@ -74,15 +74,14 @@ void ofApp::setup() {
 	gui.add(lifespanRange.setup("Lifespan Range", ofVec2f(1, 6), ofVec2f(.1, .2), ofVec2f(3, 10)));
 	gui.add(mass.setup("Mass", 1, .1, 10));
 	gui.add(damping.setup("Damping", .99, .8, 1.0));
-	gui.add(gravity.setup("Gravity", 0, -20, 20));
+	gui.add(gravity.setup("Gravity", 1, 0, 5));
 	gui.add(radius.setup("Radius", .1, 1, 10));
 	gui.add(turbMin.setup("Turbulence Min", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
 	gui.add(turbMax.setup("Turbulence Max", ofVec3f(0, 0, 0), ofVec3f(-20, -20, -20), ofVec3f(20, 20, 20)));
-	gui.add(radialForceVal.setup("Radial Force", 1000, 100, 5000));
+	gui.add(radialForceVal.setup("Radial Force", 500, 100, 5000));
 	gui.add(radialHight.setup("Radial Height", .2, .1, 1.0));
 	gui.add(cyclicForceVal.setup("Cyclic Force", 0, 10, 500));
 	bHide = false;
-
 	//  Create Octree for testing.
 	//
 	float time = ofGetElapsedTimeMillis();
@@ -108,14 +107,14 @@ void ofApp::setup() {
 	
 	//Sets up Gravity and Impulse Force
 	gravityForce = new GravityForce(ofVec3f(0, -5, 0));
-	neutralForce = new GravityForce(ofVec3f(0, .001, 0));
+	neutralForce = new GravityForce(ofVec3f(0, 5, 0));
 	impulseForce = new ImpulseRadialForce(0);
 	turbulenceForce = new TurbulenceForce(ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5));
 	cyclicForce = new CyclicForce(0);
 
 
 	//Sets up Lander Emitter
-	landerEmitter.sys->addForce(gravityForce);
+	//landerEmitter.sys->addForce(gravityForce);
 	landerEmitter.setEmitterType(SingleEmitter);
 	landerEmitter.setGroupSize(1);
 	landerEmitter.start();
@@ -175,7 +174,7 @@ void ofApp::update() {
 	//
 	gravityForce->set(ofVec3f(0, -gravity, 0));
 	turbulenceForce->set(ofVec3f(turbMin->x, turbMin->y, turbMin->z), ofVec3f(turbMax->x, turbMax->y, turbMax->z));
-	impulseForce->set(radialForceVal);
+	impulseForce->set(-radialForceVal);
 	impulseForce->setHeight(radialHight);
 	cyclicForce->set(cyclicForceVal);
 
@@ -187,10 +186,12 @@ void ofApp::update() {
 		p.addForces(10 * glm::vec3(0, 1, 0));
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
-		glm::vec3 landerPosition = lander.getPosition();
+		glm::vec3 landerPosition = p.position;
 		glm::vec3 offset = glm::vec3(0, -1, .15);
 		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
 		exhaustEmitter.setPosition(exhaustEmitterPosition);
+		exhaustEmitter.sys->reset();
+		exhaustEmitter.start();
 	}
 	//Control to move down
 	if (keymap[OF_KEY_CONTROL]) {
@@ -214,8 +215,6 @@ void ofApp::update() {
 	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
-		impulseForce->setMagnitude(p.velocity.length());
-		neutralForce->set(-p.velocity);
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 0, 1, 0);
 		landerEmitter.update();
@@ -227,11 +226,12 @@ void ofApp::update() {
 		checkCollision();
 
 		if (collision) {
-		//	landerEmitter.sys->addForce(neutralForce);
-		//	landerEmitter.sys->addForce(impulseForce);
+			neutralForce->set(glm::vec3(0, .02, 0));
+			landerEmitter.sys->addForce(neutralForce);
 		}
 		else {
-			cout << landerEmitter.sys->forces[0] << endl;
+			neutralForce->set(glm::vec3(0, 0, 0));
+			landerEmitter.sys->addForce(neutralForce);
 		}
 		if (bDefaultCam) {
 			cam.setDistance(20);
@@ -494,8 +494,6 @@ void ofApp::keyPressed(int key) {
 	default:
 		break;
 	case ' ':
-		exhaustEmitter.sys->reset();
-		exhaustEmitter.start();
 		break;
 	}
 	keymap[key] = true;
@@ -823,5 +821,4 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 void ofApp::checkCollision() {
 	colBoxList.clear();
 	collision = octree.intersect(boundingBox, octree.root, colBoxList);
-	if (collision) cout << "collide" << endl;
 }
