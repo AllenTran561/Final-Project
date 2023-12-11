@@ -112,6 +112,7 @@ class ofApp : public ofBaseApp{
 
 		//Thrust sound
 		ofSoundPlayer thrustSound;
+		ofSoundPlayer pointUp;
 
 		//Background Image
 		//ofEasyCam cam;

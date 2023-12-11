@@ -151,6 +151,9 @@ void ofApp::setup() {
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
 
+	pointUp.load("sounds/point-up.wav");
+	pointUp.setLoop(false);
+
 	backgroundImage.load("images/galaxy.jpg");
 
 	for (int i = 0; i < goalEmitter.sys->particles.size(); i++) {
@@ -286,14 +289,14 @@ void ofApp::update() {
 			if (goalBox[i].overlap(boundingBox)) {
 				goalBox.erase(goalBox.begin() + i);
 				goalEmitter.sys->particles.erase(goalEmitter.sys->particles.begin() + i);
-				cout << "here" << endl;
+				pointUp.play();
 			}
 		}
 		if (bDefaultCam) {
 			cam.setDistance(20);
 		}
 		if (bThirdPersonCam) {
-			glm::vec3 pos = glm::vec3(p.position.x, p.position.y + 2.5, p.position.z + 10);
+			glm::vec3 pos = glm::vec3(p.position.x, p.position.y + 2.5, p.position.z + 15);
 			cam.setPosition(pos);
 			cam.setTarget(p.position + p.heading() * 20);
 		}
