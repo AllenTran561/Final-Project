@@ -44,10 +44,10 @@ void ofApp::setup() {
 
 	ofLoadImage(particleTex, "images/dot.png");
 
-	if (!ofLoadImage(particleTex, "images/dot.png")) {
-		cout << "Particle Texture File: images/dot.png not found" << endl;
-		ofExit();
-	}
+	//if (!ofLoadImage(particleTex, "images/dot.png")) {
+	//	cout << "Particle Texture File: images/dot.png not found" << endl;
+	//	ofExit();
+	//}
 
 	#ifdef TARGET_OPENGLES
 		shader.load("shaders_gles/shader");
@@ -188,7 +188,7 @@ void ofApp::update() {
 
 		//Offset exhaust particles position to appear inside spaceship exhaust 
 		glm::vec3 landerPosition = p.position;
-		glm::vec3 offset = glm::vec3(0, -1, .15);
+		glm::vec3 offset = glm::vec3(0, -1, 0);
 		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
 		exhaustEmitter.setPosition(exhaustEmitterPosition);
 		exhaustEmitter.sys->reset();
@@ -248,8 +248,9 @@ void ofApp::update() {
 			cam.setTarget(p.position);
 		}
 		if (bExhaustCam) {
+			glm::vec3 targetOffset = glm::vec3(0, -5, 0);
 			cam.setPosition(lander.getPosition().x, lander.getPosition().y - 1.12, lander.getPosition().z);
-			cam.setTarget(glm::vec3(0, 0, 0));
+			cam.setTarget(lander.getPosition() + targetOffset);
 		}
 		AGL.setOrigin(Vector3(p.position.x, p.position.y, p.position.z));
 		pointSelected = octree.intersect(AGL, octree.root, selectedNode);
