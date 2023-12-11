@@ -85,10 +85,7 @@ void ofApp::setup() {
 	bHide = false;
 	//  Create Octree for testing.
 	//
-	float time = ofGetElapsedTimeMillis();
 	octree.create(mars.getMesh(0), 10);
-	time = ofGetElapsedTimeMillis() - time;
-	cout << "Octree Creation Time: " << time << endl;
 	cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
 
 	testBox = Box(Vector3(3, 3, 0), Vector3(5, 5, 2));
@@ -135,8 +132,6 @@ void ofApp::setup() {
 	//exhaustEmitter.setRandomLife(true);
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
-
-	height = 0;
 }
 
 void ofApp::loadVbo()
@@ -179,47 +174,47 @@ void ofApp::update() {
 	impulseForce->setHeight(radialHight);
 	cyclicForce->set(cyclicForceVal);
 
-	//References to lander particle
-	Particle& p = landerEmitter.sys->particles[0];
-	//Checks keys
-	//Space to move up
-	if (keymap[' ']) {
-		p.addForces(10 * glm::vec3(0, 1, 0));
-
-		//Offset exhaust particles position to appear inside spaceship exhaust 
-		glm::vec3 landerPosition = p.position;
-		glm::vec3 offset = glm::vec3(0, -1, .15);
-		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
-		exhaustEmitter.setPosition(exhaustEmitterPosition);
-		exhaustEmitter.sys->reset();
-		exhaustEmitter.start();
-	}
-	//Control to move down
-	if (keymap[OF_KEY_CONTROL]) {
-		p.addForces(-10 * glm::vec3(0, 1, 0));
-	}
-	//Arrow up to move foward
-	if (keymap[OF_KEY_UP]) {
-		p.addForces(10 * p.heading());
-	}
-	//Arrow down to backward
-	if (keymap[OF_KEY_DOWN]) {
-		p.addForces(-10 * p.heading());
-	}
-	//Arrow right to rotate clockwise
-	if (keymap[OF_KEY_RIGHT]) {
-		p.addAngularForces(100);
-	}
-	//Arrow left to rotate counterclockwise
-	if (keymap[OF_KEY_LEFT]) {
-		p.addAngularForces(-100);
-	}
 	//Connects lander to landerEmitter particle
 	if (bLanderLoaded && !bInDrag) {
+		//References to lander particle
+		Particle& p = landerEmitter.sys->particles[0];
 		lander.setPosition(p.position.x, p.position.y, p.position.z);
 		lander.setRotation(0, p.rotation, 0, 1, 0);
 		landerEmitter.update();
 		exhaustEmitter.update();
+		
+		//Checks keys
+		//Space to move up
+		if (keymap[' ']) {
+			p.addForces(10 * glm::vec3(0, 1, 0));
+			//Offset exhaust particles position to appear inside spaceship exhaust 
+			glm::vec3 landerPosition = p.position;
+			glm::vec3 offset = glm::vec3(0, -1, .15);
+			glm::vec3 exhaustEmitterPosition = landerPosition + offset;
+			exhaustEmitter.setPosition(exhaustEmitterPosition);
+			exhaustEmitter.sys->reset();
+			exhaustEmitter.start();
+		}
+		//Control to move down
+		if (keymap[OF_KEY_CONTROL]) {
+			p.addForces(-10 * glm::vec3(0, 1, 0));
+		}
+		//Arrow up to move foward
+		if (keymap[OF_KEY_UP]) {
+			p.addForces(10 * p.heading());
+		}
+		//Arrow down to backward
+		if (keymap[OF_KEY_DOWN]) {
+			p.addForces(-10 * p.heading());
+		}
+		//Arrow right to rotate clockwise
+		if (keymap[OF_KEY_RIGHT]) {
+			p.addAngularForces(100);
+		}
+		//Arrow left to rotate counterclockwise
+		if (keymap[OF_KEY_LEFT]) {
+			p.addAngularForces(-100);
+		}
 
 		ofVec3f min = (ofVec3f(landerBounds.min().x(), landerBounds.min().y(), landerBounds.min().z()) + lander.getPosition());
 		ofVec3f max = (ofVec3f(landerBounds.max().x(), landerBounds.max().y(), landerBounds.max().z()) + lander.getPosition());
@@ -256,7 +251,6 @@ void ofApp::update() {
 		if (pointSelected) {
 			ofVec3f pointRet = octree.mesh.getVertex(selectedNode.points[0]);
 			height = AGL.origin.y() - pointRet.y;
-			cout << height << endl;
 		}
 	}
 }

@@ -45,6 +45,7 @@ class ofApp : public ofBaseApp{
 		Ray AGL;
 		bool bAGL;
 		float height;
+		float fuel;
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander, spaceship;
 		ofLight light;
