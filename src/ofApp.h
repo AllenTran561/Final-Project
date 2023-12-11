@@ -118,6 +118,11 @@ class ofApp : public ofBaseApp{
 		ofImage backgroundImage;
 		ofPlanePrimitive backgroundPlane;
 
+		//Fuel System
+		float fuelGauge = 120.0;
+		float fuelUsageRate = 8.23;
+		bool isSpacebarPressed = false;
+
 
 		vector<Box> bboxList;
 		map<int, ofColor> colorMap;

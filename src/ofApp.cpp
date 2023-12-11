@@ -146,7 +146,7 @@ void ofApp::setup() {
 	exhaustEmitter.setLifespanRange(ofVec2f(lifespanRange->x, lifespanRange->y));
 	exhaustEmitter.setPosition(lander.getPosition());
 
-	height = 0;
+	//height = 0;
 
 	thrustSound.load("sounds/thrusters-loop.wav");
 	thrustSound.setLoop(true);
@@ -207,15 +207,28 @@ void ofApp::update() {
 	//Checks keys
 	//Space to move up
 	if (keymap[' ']) {
-		p.addForces(5 * glm::vec3(0, 1, 0));
+		if (fuelGauge > 0.0) {
+			// If there is remaining fuel, consume it
+			fuelGauge -= ofGetLastFrameTime() * fuelUsageRate;
+			p.addForces(10 * glm::vec3(0, 1, 0));
 
-		//Offset exhaust particles position to appear inside spaceship exhaust 
-		glm::vec3 landerPosition = p.position;
-		glm::vec3 offset = glm::vec3(0, -1, .15);
-		glm::vec3 exhaustEmitterPosition = landerPosition + offset;
-		exhaustEmitter.setPosition(exhaustEmitterPosition);
-		exhaustEmitter.sys->reset();
-		exhaustEmitter.start();
+			//Offset exhaust particles position to appear inside spaceship exhaust 
+			glm::vec3 landerPosition = p.position;
+			glm::vec3 offset = glm::vec3(0, -1.5, 0);
+			glm::vec3 exhaustEmitterPosition = landerPosition + offset;
+			exhaustEmitter.setPosition(p.position + offset);
+			exhaustEmitter.sys->reset();
+			exhaustEmitter.start();
+
+			isSpacebarPressed = true;
+		}
+		else {
+			isSpacebarPressed = false;
+			thrustSound.stop();
+		}
+	}
+	else {
+		isSpacebarPressed = false;
 	}
 	//Control to move down
 	if (keymap[OF_KEY_CONTROL]) {
@@ -430,6 +443,9 @@ void ofApp::draw() {
 	ofDrawBitmapString("Above Ground Level: ", ofGetWidth() - 280, 15);
 	ofDrawBitmapString(height, ofGetWidth() - 110, 15);
 
+	ofDrawBitmapString("Fuel: ", ofGetWidth() - 280, 30);
+	ofDrawBitmapString(fuelGauge, ofGetWidth() - 230, 30);
+
 }
 
 // 
@@ -562,8 +578,9 @@ void ofApp::keyPressed(int key) {
 	default:
 		break;
 	case ' ':
-		if (!thrustSound.isPlaying())
+		if (!isSpacebarPressed && (fuelGauge > 0)) {
 			thrustSound.play();
+		}
 		break;
 	}
 	keymap[key] = true;
